@@ -14,7 +14,9 @@ import ChangePassword from "../pages/ChangePassword";
 import LogoutAllDevices from "../pages/LogoutAllDevices";
 import Currency from "../pages/Currency";
 import Appearance from "../pages/Appearance";
-import ResetPassword from "../pages/ResetPassword";
+// import VerifyEmail from "../pages/VerifyEmail";
+// import ResetPassword from "../pages/ResetPassword";
+// import ForgotPassword from "../pages/ForgotPassword";
 
 const AppRoutes = () => {
   return (
@@ -59,9 +61,13 @@ const AppRoutes = () => {
             }
           />
 
+          {/* <Route path="/verify-email" element={<VerifyEmail />} /> */}
+
           <Route path="/register" element={<Register />} />
 
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+
+          {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
 
           <Route
             path="/settings"
