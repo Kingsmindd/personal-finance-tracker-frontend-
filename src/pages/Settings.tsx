@@ -107,8 +107,8 @@ const Settings: React.FC = () => {
           {/* Back button */}
           <button
             type="button"
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Back to dashboard"
             className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white sm:h-11 sm:w-11"
           >
             <ArrowLeft size={20} />
