@@ -76,21 +76,24 @@ const RegisterForm: React.FC = () => {
 
   return (
     <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-900">
-      {/* Logo */}{" "}
+      {/* Logo */}
       <div className="mb-8 text-center">
-        {" "}
-        <h1 className="text-3xl font-bold text-gray-900">Expense Tracker</h1>
-        <p className="mt-2 text-gray-500">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Expense Tracker
+        </h1>
+
+        <p className="mt-2 text-gray-500 dark:text-gray-400">
           Create your account to start tracking your finances.
         </p>
       </div>
+
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Full Name */}
         <div>
           <label
             htmlFor="name"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"
           >
             Full Name
           </label>
@@ -100,7 +103,7 @@ const RegisterForm: React.FC = () => {
             id="name"
             type="text"
             placeholder="Enter your name"
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400"
           />
 
           {errors.name && (
@@ -112,7 +115,7 @@ const RegisterForm: React.FC = () => {
         <div>
           <label
             htmlFor="email"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"
           >
             Email
           </label>
@@ -122,7 +125,7 @@ const RegisterForm: React.FC = () => {
             id="email"
             type="email"
             placeholder="Enter your email"
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400"
           />
 
           {errors.email && (
@@ -134,7 +137,7 @@ const RegisterForm: React.FC = () => {
         <div>
           <label
             htmlFor="password"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"
           >
             Password
           </label>
@@ -145,13 +148,13 @@ const RegisterForm: React.FC = () => {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400"
             />
 
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -169,7 +172,7 @@ const RegisterForm: React.FC = () => {
         <div>
           <label
             htmlFor="confirmPassword"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"
           >
             Confirm Password
           </label>
@@ -180,13 +183,13 @@ const RegisterForm: React.FC = () => {
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400"
             />
 
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               aria-label={
                 showConfirmPassword
                   ? "Hide password confirmation"
@@ -206,7 +209,7 @@ const RegisterForm: React.FC = () => {
 
         {/* Error */}
         {errorMessage && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
             {errorMessage}
           </div>
         )}
@@ -220,12 +223,13 @@ const RegisterForm: React.FC = () => {
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </button>
       </form>
+
       {/* Login */}
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         Already have an account?{" "}
         <Link
           to="/login"
-          className="font-semibold text-gray-900 hover:underline"
+          className="font-semibold text-gray-900 hover:underline dark:text-white"
         >
           Login
         </Link>
