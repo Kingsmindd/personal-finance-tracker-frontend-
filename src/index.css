@@ -6,5 +6,23 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  text-align: left;
+}
+
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+body { margin: 0; min-width: 0; }
+#root { min-height: 100dvh; }
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+.dark :where(button, a, input, select, textarea):focus-visible { outline-color: #93c5fd; }
+input.peer:focus-visible + div { outline: 2px solid #2563eb; outline-offset: 3px; }
+.dark input.peer:focus-visible + div { outline-color: #93c5fd; }
+@media (max-width: 639px) {
+  input:not([type="radio"]):not([type="checkbox"]), select, textarea { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }

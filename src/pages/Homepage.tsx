@@ -7,7 +7,7 @@ const Homepage: React.FC = () => {
     <div className="min-h-screen overflow-x-hidden bg-white text-gray-900 transition-colors dark:bg-gray-950 dark:text-white">
       {/* Navbar */}
       <nav className="border-b border-gray-100 dark:border-gray-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 dark:bg-blue-600">
@@ -37,17 +37,17 @@ const Homepage: React.FC = () => {
           </div>
 
           {/* Auth buttons */}
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
             <Link
               to="/login"
-              className="rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 sm:px-4 sm:py-2.5"
+              className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 sm:px-4 sm:py-2.5"
             >
               Login
             </Link>
 
             <Link
               to="/register"
-              className="rounded-xl bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 sm:px-4 sm:py-2.5"
+              className="inline-flex min-h-11 items-center rounded-xl bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 sm:px-4 sm:py-2.5"
             >
               Get Started
             </Link>

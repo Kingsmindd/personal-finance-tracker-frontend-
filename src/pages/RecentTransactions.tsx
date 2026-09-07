@@ -17,7 +17,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: user?.currency || "NGN",
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 4,
     }).format(amount);
   };
 
@@ -26,6 +26,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       day: "numeric",
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     }).format(new Date(date));
   };
 
@@ -35,9 +36,9 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         {transactions.map((transaction) => (
           <div
             key={transaction.id}
-            className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
+            className="flex min-w-0 flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between first:pt-0 last:pb-0"
           >
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 max-w-full items-center gap-3">
               <div
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
                   transaction.type === "income"
@@ -63,16 +64,16 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                   {transaction.title}
                 </p>
 
-                <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span>{transaction.category}</span>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="break-all">{transaction.category}</span>
                   <span>•</span>
-                  <span>{formatDate(transaction.createdAt)}</span>
+                  <span>{formatDate(transaction.occurredAt)}</span>
                 </div>
               </div>
             </div>
 
             <p
-              className={`shrink-0 text-sm font-semibold ${
+              className={`max-w-full break-all text-sm font-semibold sm:max-w-[45%] sm:text-right ${
                 transaction.type === "income"
                   ? "text-green-600 dark:text-green-400"
                   : "text-red-600 dark:text-red-400"

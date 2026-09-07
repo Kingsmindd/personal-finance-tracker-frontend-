@@ -21,7 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const Profile: React.FC = () => {
-  const { user, login, token } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -79,9 +79,7 @@ const Profile: React.FC = () => {
 
       const updatedUser = response.data.user;
 
-      if (token) {
-        login(token, updatedUser);
-      }
+      updateUser(updatedUser);
 
       setIsEditing(false);
     } catch (error: unknown) {

@@ -11,8 +11,8 @@ interface TransactionFiltersProps {
   category: string;
   onCategoryChange: (value: string) => void;
 
-  sort: "createdAt" | "amount" | "title";
-  onSortChange: (value: "createdAt" | "amount" | "title") => void;
+  sort: "occurredAt" | "amount" | "title";
+  onSortChange: (value: "occurredAt" | "amount" | "title") => void;
 
   onAddTransaction: () => void;
   isFetching: boolean;
@@ -44,6 +44,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            aria-label="Search transactions"
             placeholder="Search transactions..."
             className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-10 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
           />
@@ -58,6 +59,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
 
         {/* Type */}
         <select
+          aria-label="Filter by transaction type"
           value={type}
           onChange={(e) =>
             onTypeChange(e.target.value as "" | "income" | "expense")
@@ -74,19 +76,21 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
           type="text"
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
+          aria-label="Filter by category"
           placeholder="Category"
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
         />
 
         {/* Sort */}
         <select
+          aria-label="Sort transactions"
           value={sort}
           onChange={(e) =>
-            onSortChange(e.target.value as "createdAt" | "amount" | "title")
+            onSortChange(e.target.value as "occurredAt" | "amount" | "title")
           }
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500"
         >
-          <option value="createdAt">Newest</option>
+          <option value="occurredAt">Newest</option>
           <option value="amount">Amount</option>
           <option value="title">Title</option>
         </select>

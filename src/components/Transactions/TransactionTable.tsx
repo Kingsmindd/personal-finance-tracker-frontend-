@@ -20,7 +20,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: user?.currency || "NGN",
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 4,
     }).format(amount);
   };
 
@@ -44,7 +44,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
             className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h3 className="truncate font-semibold text-gray-900 dark:text-white">
                   {transaction.title}
                 </h3>
@@ -65,14 +65,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
               </span>
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-4">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Amount
                 </p>
 
                 <p
-                  className={`font-semibold ${
+                  className={`break-all font-semibold ${
                     transaction.type === "income"
                       ? "text-green-600 dark:text-green-400"
                       : "text-red-600 dark:text-red-400"
@@ -83,11 +83,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                 </p>
               </div>
 
-              <div className="text-right">
+              <div className="sm:text-right">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
 
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {new Date(transaction.createdAt).toLocaleDateString()}
+                  {new Date(transaction.occurredAt).toLocaleDateString(undefined, { timeZone: "UTC" })}
                 </p>
               </div>
             </div>
@@ -162,7 +162,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                   </td>
 
                   <td className="px-6 py-4 text-left text-gray-600 dark:text-gray-300">
-                    {new Date(transaction.createdAt).toLocaleDateString()}
+                    {new Date(transaction.occurredAt).toLocaleDateString(undefined, { timeZone: "UTC" })}
                   </td>
 
                   <td

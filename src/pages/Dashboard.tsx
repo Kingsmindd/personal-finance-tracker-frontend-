@@ -16,11 +16,14 @@ import { getRecentTransactions } from "../services/transaction";
 import { Settings as SettingsIcon } from "lucide-react";
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const {
     data: summary,
     isLoading,
+    isError: summaryError,
+    refetch: retrySummary,
   } = useQuery({
-    queryKey: ["financial-summary"],
+    queryKey: ["financial-summary", user?.id],
     queryFn: getFinancialSummary,
   });
 
@@ -29,19 +32,20 @@ const Dashboard: React.FC = () => {
     isLoading: transactionsLoading,
     isError: transactionsError,
   } = useQuery({
-    queryKey: ["recent-transactions"],
+    queryKey: ["recent-transactions", user?.id],
     queryFn: getRecentTransactions,
   });
   const navigate = useNavigate();
-  const { user } = useAuth();
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: user?.currency || "NGN",
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 4,
     }).format(amount);
   };
+  if (summaryError) return <div role="alert" className="p-6 text-red-600 dark:text-red-400">Unable to load your financial summary. <button onClick={() => void retrySummary()} className="underline">Try again</button></div>;
   return (
     <div className="min-h-screen bg-gray-50  dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -60,7 +64,7 @@ const Dashboard: React.FC = () => {
               Here's an overview of your finances.
             </p>
           </div>
-          <div className="flex flex-col md:flex-row  items-center gap-6 ">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center ">
             <button
               onClick={() => navigate("/transactions")}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -107,7 +111,7 @@ const Dashboard: React.FC = () => {
               Total Balance
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-1 break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
               {isLoading ? "Loading..." : formatCurrency(summary?.balance ?? 0)}
             </h2>
           </div>
@@ -128,7 +132,7 @@ const Dashboard: React.FC = () => {
               Total Income
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-1 break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
               {isLoading
                 ? "Loading..."
                 : formatCurrency(summary?.totalIncome ?? 0)}
@@ -151,7 +155,7 @@ const Dashboard: React.FC = () => {
               Total Expenses
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-1 break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
               {isLoading
                 ? "Loading..."
                 : formatCurrency(summary?.totalExpense ?? 0)}
@@ -174,7 +178,7 @@ const Dashboard: React.FC = () => {
               Transactions
             </p>
 
-            <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-1 break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
               {isLoading ? "..." : (summary?.transactionCount ?? 0)}
             </h2>
           </div>
@@ -183,7 +187,7 @@ const Dashboard: React.FC = () => {
         {/* Main Content */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Recent Transactions */}
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 min-w-0 lg:col-span-2">
             <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
               <h2 className="font-semibold text-gray-900 dark:text-white">
                 Recent Transactions

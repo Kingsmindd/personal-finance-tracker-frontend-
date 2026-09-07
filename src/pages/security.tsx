@@ -9,7 +9,7 @@ const Security: React.FC = () => {
     <div className="min-h-screen w-full bg-gray-50 px-4 py-4 dark:bg-gray-900 sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto w-full max-w-3xl">
         {/* Header */}
-        <div className="mb-6 text-center sm:mb-8">
+        <div className="mb-6  sm:mb-8">
           <button
             type="button"
             onClick={() => navigate("/settings")}
@@ -23,7 +23,7 @@ const Security: React.FC = () => {
             Security
           </h1>
 
-          <p className="mx-auto mt-1 max-w-md text-center text-sm leading-5 text-gray-500 dark:text-gray-400">
+          <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-gray-500 dark:text-gray-400">
             Manage your password and account security
           </p>
         </div>

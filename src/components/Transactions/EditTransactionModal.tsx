@@ -1,3 +1,4 @@
+import { apiError } from "../../utils/apiError";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +13,7 @@ import {
 import {
   transactionSchema,
   type TransactionFormData,
+  type TransactionFormInput,
 } from "../../validations/transaction.schema";
 
 interface EditTransactionModalProps {
@@ -31,7 +33,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     control,
     reset,
     formState: { errors },
-  } = useForm<TransactionFormData>({
+  } = useForm<TransactionFormInput, unknown, TransactionFormData>({
     resolver: zodResolver(transactionSchema),
   });
 
@@ -41,12 +43,13 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     if (transaction) {
       reset({
         title: transaction.title,
-        amount: transaction.amount,
+        amount: String(transaction.amount),
         type: transaction.type,
         category: transaction.category,
+        occurredAt: transaction.occurredAt.slice(0, 10),
       });
     }
-  }, [transaction, reset]);
+  }, [transaction, reset, isOpen]);
 
   const updateMutation = useMutation({
     mutationFn: (data: TransactionFormData) => {
@@ -58,6 +61,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthly-analytics"] });
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
       });
@@ -75,7 +79,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
 
     onError: (error) => {
       console.error("UPDATE TRANSACTION ERROR:", error);
-      alert("Failed to update transaction.");
+      alert(apiError(error, "Failed to update transaction."));
     },
   });
 
@@ -93,7 +97,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -106,7 +110,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close edit transaction modal"
-            className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
           >
             <X size={20} />
           </button>
@@ -153,27 +157,10 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                 <input
                   id="amount"
                   type="text"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   placeholder="e.g. 50,000"
-                  value={
-                    field.value !== undefined && field.value !== null
-                      ? Number(field.value).toLocaleString("en-US")
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const rawValue = e.target.value.replace(/,/g, "");
-
-                    if (rawValue === "") {
-                      field.onChange(undefined);
-                      return;
-                    }
-
-                    const numericValue = Number(rawValue);
-
-                    if (!Number.isNaN(numericValue)) {
-                      field.onChange(numericValue);
-                    }
-                  }}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.value.replace(/,/g, ""))}
                   onBlur={field.onBlur}
                   ref={field.ref}
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
@@ -229,6 +216,34 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             {errors.type && (
               <p className="mt-1 text-sm text-red-500 dark:text-red-400">
                 {errors.type.message}
+              </p>
+            )}
+          </div>
+
+          {/* Transaction date */}
+          <div>
+            <label
+              htmlFor="edit-date"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >
+              Transaction date
+            </label>
+            <input
+              id="edit-date"
+              type="date"
+              {...register("occurredAt")}
+              aria-invalid={!!errors.occurredAt}
+              aria-describedby={
+                errors.occurredAt ? "edit-date-error" : undefined
+              }
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark]"
+            />
+            {errors.occurredAt && (
+              <p
+                id="edit-date-error"
+                className="mt-1 text-sm text-red-500 dark:text-red-400"
+              >
+                {errors.occurredAt.message}
               </p>
             )}
           </div>

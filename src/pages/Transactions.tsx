@@ -1,3 +1,4 @@
+import { useAuth } from "../hooks/useAuth";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import EditTransactionModal from "../components/Transactions/EditTransactionModal";
@@ -19,14 +20,15 @@ import { useDebounce } from "../hooks/useDebounce";
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   // Filter state
   const [search, setSearch] = useState("");
   const [type, setType] = useState<"" | "income" | "expense">("");
   const [category, setCategory] = useState("");
-  const [sort, setSort] = useState<"createdAt" | "amount" | "title">(
-    "createdAt",
+  const [sort, setSort] = useState<"occurredAt" | "amount" | "title">(
+    "occurredAt",
   );
 
   const debouncedSearch = useDebounce(search, 500);
@@ -46,6 +48,7 @@ const Transactions: React.FC = () => {
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: [
       "transactions",
+      user?.id,
       page,
       debouncedSearch,
       type,
@@ -69,6 +72,8 @@ const Transactions: React.FC = () => {
     mutationFn: deleteTransaction,
 
     onSuccess: () => {
+      if (data?.transactions.length === 1 && page > 1) setPage(page - 1);
+      queryClient.invalidateQueries({ queryKey: ["monthly-analytics"] });
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
       });
@@ -137,7 +142,7 @@ const Transactions: React.FC = () => {
   const transactions = data?.transactions ?? [];
 
   return (
-    <div className="min-h-screen space-y-6 bg-gray-50 p-4 dark:bg-gray-900 sm:p-6 lg:p-8">
+    <div className="mx-auto min-h-screen max-w-7xl space-y-6 bg-gray-50 p-4 dark:bg-gray-900 sm:p-6 lg:p-8">
       {/* Page Header */}
       {/* Page Header */}
       <div className="relative flex items-center justify-center">

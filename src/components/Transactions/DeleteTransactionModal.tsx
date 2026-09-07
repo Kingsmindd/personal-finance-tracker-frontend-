@@ -21,7 +21,7 @@ const DeleteTransactionModal: React.FC<DeleteConfirmationModalProps> = ({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">

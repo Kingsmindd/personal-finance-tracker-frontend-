@@ -26,7 +26,7 @@ const Analystics: React.FC = () => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: user?.currency || "NGN",
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 4,
     }).format(amount);
   };
 
@@ -36,7 +36,7 @@ const Analystics: React.FC = () => {
     const symbol = new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 4,
     })
       .formatToParts(0)
       .find((part) => part.type === "currency")?.value;
@@ -51,11 +51,8 @@ const Analystics: React.FC = () => {
 
     return `${symbol}${value.toLocaleString()}`;
   };
-  const {
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["financial-summary"],
+  const { isLoading, isError } = useQuery({
+    queryKey: ["financial-summary", user?.id],
     queryFn: getFinancialSummary,
   });
 
@@ -64,7 +61,7 @@ const Analystics: React.FC = () => {
     isLoading: isMonthlyLoading,
     isError: isMonthlyError,
   } = useQuery({
-    queryKey: ["monthly-analytics", monthsToShow],
+    queryKey: ["monthly-analytics", user?.id, monthsToShow],
     queryFn: () => getMonthlyAnalytics(monthsToShow),
   });
 
@@ -77,7 +74,14 @@ const Analystics: React.FC = () => {
   const monthOptions = [6, 12, 24];
 
   if (isLoading) {
-    return <div>Loading analytics...</div>;
+    return (
+      <div
+        role="status"
+        className="min-h-dvh bg-gray-50 p-6 text-gray-700 dark:bg-gray-900 dark:text-gray-200"
+      >
+        Loading analytics...
+      </div>
+    );
   }
 
   if (isError) {
@@ -85,7 +89,14 @@ const Analystics: React.FC = () => {
   }
 
   if (isMonthlyLoading) {
-    return <div>Loading monthly analytics...</div>;
+    return (
+      <div
+        role="status"
+        className="min-h-dvh bg-gray-50 p-6 text-gray-700 dark:bg-gray-900 dark:text-gray-200"
+      >
+        Loading monthly analytics...
+      </div>
+    );
   }
 
   if (isMonthlyError) {
@@ -93,8 +104,9 @@ const Analystics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen space-y-6 bg-gray-50 p-4 dark:bg-gray-900 sm:p-6 lg:p-8">
+    <div className="mx-auto min-h-screen max-w-7xl space-y-6 bg-gray-50 p-4 dark:bg-gray-900 sm:p-6 lg:p-8">
       {/* Page Header */}
+
       <div className="relative flex items-center justify-center">
         {/* Back button */}
         <button

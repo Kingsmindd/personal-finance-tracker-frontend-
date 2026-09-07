@@ -8,6 +8,7 @@ export interface Transaction {
   type: "income" | "expense";
   category: string;
   createdAt: string;
+  occurredAt: string;
   updatedAt: string;
 }
 
@@ -17,7 +18,7 @@ export interface GetTransactionsParams {
   search?: string;
   type?: "income" | "expense";
   category?: string;
-  sort?: "createdAt" | "amount" | "title";
+  sort?: "occurredAt" | "amount" | "title";
   order?: "asc" | "desc";
 }
 
@@ -46,7 +47,7 @@ export const getTransactions = async (
       search: params?.search,
       type: params?.type,
       category: params?.category,
-      sort: params?.sort ?? "createdAt",
+      sort: params?.sort ?? "occurredAt",
       order: params?.order ?? "desc",
     },
   });
@@ -59,7 +60,7 @@ export const getRecentTransactions = async (): Promise<Transaction[]> => {
     params: {
       page: 1,
       limit: 5,
-      sort: "createdAt",
+      sort: "occurredAt",
       order: "desc",
     },
   });

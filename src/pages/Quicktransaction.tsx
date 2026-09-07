@@ -1,37 +1,46 @@
+import { useTransactionDate } from "../hooks/useTransactionDate";
+import { todayDate } from "../utils/transactionDate";
+import { apiError } from "../utils/apiError";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowDownLeft, ArrowUpRight, Plus } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import axios from "axios";
 
 import { createTransaction } from "../services/transaction";
 import {
   transactionSchema,
   type TransactionFormData,
+  type TransactionFormInput,
 } from "../validations/transaction.schema";
 
 const Quicktransaction: React.FC = () => {
   const queryClient = useQueryClient();
+  const [initialDate] = React.useState(todayDate);
 
   const [successMessage, setSuccessMessage] = useState("");
   const [serverError, setServerError] = useState("");
 
   const {
     register,
+    getFieldState,
+    setValue,
     handleSubmit,
     reset,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<TransactionFormData>({
+  } = useForm<TransactionFormInput, unknown, TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       title: "",
-      amount: undefined,
+      amount: "",
       type: "expense",
       category: "",
+      occurredAt: initialDate,
     },
   });
+
+  useTransactionDate(true, getFieldState, setValue);
 
   const onSubmit = async (data: TransactionFormData) => {
     setSuccessMessage("");
@@ -46,8 +55,10 @@ const Quicktransaction: React.FC = () => {
         setSuccessMessage("");
       }, 3000);
 
-      reset();
+      reset({ title: "", amount: "", type: "expense", category: "", occurredAt: todayDate() });
 
+      queryClient.invalidateQueries({ queryKey: ["monthly-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({
         queryKey: ["financial-summary"],
       });
@@ -56,18 +67,7 @@ const Quicktransaction: React.FC = () => {
         queryKey: ["recent-transactions"],
       });
     } catch (error) {
-      console.log("TRANSACTION ERROR:", error);
-
-      if (axios.isAxiosError(error)) {
-        console.log("STATUS:", error.response?.status);
-        console.log("DATA:", error.response?.data);
-
-        setServerError(
-          error.response?.data?.message ?? "Failed to create transaction.",
-        );
-      } else {
-        setServerError("Something went wrong.");
-      }
+      setServerError(apiError(error, "Failed to create transaction."));
     }
   };
 
@@ -132,28 +132,11 @@ const Quicktransaction: React.FC = () => {
               <input
                 id="amount"
                 type="text"
-                inputMode="numeric"
+                inputMode="decimal"
                 placeholder="e.g. 50,000"
-                value={
-                  field.value !== undefined && field.value !== null
-                    ? Number(field.value).toLocaleString("en-US")
-                    : ""
-                }
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/,/g, "");
-
-                  if (rawValue === "") {
-                    field.onChange(undefined);
-                    return;
-                  }
-
-                  const numericValue = Number(rawValue);
-
-                  if (!Number.isNaN(numericValue)) {
-                    field.onChange(numericValue);
-                  }
-                }}
-                onBlur={field.onBlur}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value.replace(/,/g, ""))}
+                  onBlur={field.onBlur}
                 ref={field.ref}
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
               />
@@ -212,7 +195,14 @@ const Quicktransaction: React.FC = () => {
           )}
         </div>
 
-        {/* Category */}
+        {/* Transaction date */}
+          <div>
+            <label htmlFor="quick-date" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200">Transaction date</label>
+            <input id="quick-date" type="date" {...register("occurredAt")} aria-invalid={!!errors.occurredAt} aria-describedby={errors.occurredAt ? "quick-date-error" : undefined} className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark]" />
+            {errors.occurredAt && <p id="quick-date-error" className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.occurredAt.message}</p>}
+          </div>
+
+          {/* Category */}
         <div>
           <label
             htmlFor="category"
