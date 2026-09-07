@@ -153,7 +153,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </p>
             )}
           </div>
-
           {/* Amount */}
           <div>
             <label
@@ -189,7 +188,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </p>
             )}
           </div>
-
           {/* Type */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -234,15 +232,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </p>
             )}
           </div>
-
-          {/* Transaction date */}
+          {/* Transaction date */}{" "}
           <div>
+            {" "}
             <label
-              htmlFor="add-date"
+              htmlFor="edit-date"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200"
             >
-              Transaction date
-            </label>
+              {" "}
+              Transaction date{" "}
+            </label>{" "}
             <input
               id="edit-date"
               type="date"
@@ -251,18 +250,18 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               aria-describedby={
                 errors.occurredAt ? "edit-date-error" : undefined
               }
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:scheme-dark"
-            />
+              className="box-border w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:scheme-dark"
+            />{" "}
             {errors.occurredAt && (
               <p
-                id="add-date-error"
+                id="edit-date-error"
                 className="mt-1 text-sm text-red-500 dark:text-red-400"
               >
-                {errors.occurredAt.message}
+                {" "}
+                {errors.occurredAt.message}{" "}
               </p>
-            )}
+            )}{" "}
           </div>
-
           {/* Category */}
           <div>
             <label
@@ -286,7 +285,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </p>
             )}
           </div>
-
           {/* Footer */}
           <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end dark:border-gray-700">
             <button

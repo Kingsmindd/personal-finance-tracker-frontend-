@@ -121,7 +121,6 @@ const Quicktransaction: React.FC = () => {
             </p>
           )}
         </div>
-
         {/* Amount */}
         <div>
           <label
@@ -157,7 +156,6 @@ const Quicktransaction: React.FC = () => {
             </p>
           )}
         </div>
-
         {/* Type */}
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -202,33 +200,34 @@ const Quicktransaction: React.FC = () => {
             </p>
           )}
         </div>
-
-        {/* Transaction date */}
+        {/* Transaction date */}{" "}
         <div>
+          {" "}
           <label
-            htmlFor="quick-date"
+            htmlFor="edit-date"
             className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200"
           >
-            Transaction date
-          </label>
+            {" "}
+            Transaction date{" "}
+          </label>{" "}
           <input
             id="edit-date"
             type="date"
             {...register("occurredAt")}
             aria-invalid={!!errors.occurredAt}
             aria-describedby={errors.occurredAt ? "edit-date-error" : undefined}
-            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:scheme-dark"
-          />
+            className="box-border w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:scheme-dark"
+          />{" "}
           {errors.occurredAt && (
             <p
-              id="quick-date-error"
+              id="edit-date-error"
               className="mt-1 text-sm text-red-500 dark:text-red-400"
             >
-              {errors.occurredAt.message}
+              {" "}
+              {errors.occurredAt.message}{" "}
             </p>
-          )}
+          )}{" "}
         </div>
-
         {/* Category */}
         <div>
           <label
@@ -252,20 +251,17 @@ const Quicktransaction: React.FC = () => {
             </p>
           )}
         </div>
-
         {/* Messages */}
         {successMessage && (
           <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-950/40 dark:text-green-400">
             {successMessage}
           </p>
         )}
-
         {serverError && (
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
             {serverError}
           </p>
         )}
-
         {/* Submit */}
         <button
           type="submit"
