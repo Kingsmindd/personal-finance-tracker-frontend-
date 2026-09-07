@@ -52,9 +52,7 @@ const Currency: React.FC = () => {
   const auth = useContext(AuthContext);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [currency, setCurrency] = useState(
-    () => auth?.user?.currency || "NGN",
-  );
+  const [currency, setCurrency] = useState(() => auth?.user?.currency || "NGN");
   const selectedCurrency = currencies.find((item) => item.code === currency);
 
   const handleSave = async () => {
@@ -88,15 +86,16 @@ const Currency: React.FC = () => {
     <div className="min-h-screen bg-gray-50 px-4 py-6 dark:bg-gray-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-6">
         {/* Go Back */}
-        <button
-          type="button"
-          onClick={() => navigate("/settings")}
-          className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-        >
-          <ArrowLeft size={18} />
-          <span>Back to Settings</span>
-        </button>
-
+        <div className="mb-6  sm:mb-8">
+          <button
+            type="button"
+            onClick={() => navigate("/settings")}
+            className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            <ArrowLeft size={18} />
+            <span>Back to Settings</span>
+          </button>
+        </div>
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -109,7 +108,7 @@ const Currency: React.FC = () => {
         </div>
 
         {/* Currency Card */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 mt-8 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white">
               Default currency

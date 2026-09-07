@@ -160,7 +160,9 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                   inputMode="decimal"
                   placeholder="e.g. 50,000"
                   value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value.replace(/,/g, ""))}
+                  onChange={(e) =>
+                    field.onChange(e.target.value.replace(/,/g, ""))
+                  }
                   onBlur={field.onBlur}
                   ref={field.ref}
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
@@ -236,7 +238,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               aria-describedby={
                 errors.occurredAt ? "edit-date-error" : undefined
               }
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark]"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:scheme-dark"
             />
             {errors.occurredAt && (
               <p

@@ -18,19 +18,23 @@ const Security: React.FC = () => {
             <ArrowLeft size={18} />
             <span>Back to Settings</span>
           </button>
+        </div>
 
+        <div className="text-start">
+          {" "}
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
-            Security
-          </h1>
-
-          <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-gray-500 dark:text-gray-400">
-            Manage your password and account security
-          </p>
+            {" "}
+            Security{" "}
+          </h1>{" "}
+          <p className="mt-1 max-w-md text-sm leading-5 text-gray-500 dark:text-gray-400">
+            {" "}
+            Manage your password and account security{" "}
+          </p>{" "}
         </div>
 
         {/* Security */}
         <section>
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="overflow-hidden rounded-2xl border mt-8 border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             {/* Change Password */}
             <button
               type="button"

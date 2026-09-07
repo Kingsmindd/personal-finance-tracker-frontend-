@@ -31,7 +31,7 @@ const Appearance: React.FC = () => {
     <div className="min-h-screen w-full bg-gray-50 px-4 py-5 dark:bg-gray-900 sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto w-full max-w-3xl">
         {/* Header */}
-        <div className="mb-6 text-center sm:mb-8">
+        <div className="mb-6  sm:mb-8">
           <button
             type="button"
             onClick={() => navigate("/settings")}
@@ -40,18 +40,21 @@ const Appearance: React.FC = () => {
             <ArrowLeft size={18} />
             <span>Back to Settings</span>
           </button>
-
+        </div>
+        <div className="text-start">
+          {" "}
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
-            Appearance
-          </h1>
-
-          <p className="mx-auto mt-1 max-w-md text-center text-sm leading-5 text-gray-500 dark:text-gray-400">
-            Choose your preferred theme
-          </p>
+            {" "}
+            Appearance{" "}
+          </h1>{" "}
+          <p className="mt-1 max-w-md text-sm leading-5 text-gray-500 dark:text-gray-400">
+            {" "}
+            Choose your preferred theme{" "}
+          </p>{" "}
         </div>
 
         {/* Theme options */}
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="overflow-hidden mt-8  rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
           {options.map((option, index) => {
             const Icon = option.icon;
             const isSelected = theme === option.value;

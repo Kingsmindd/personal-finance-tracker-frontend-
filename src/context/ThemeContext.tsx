@@ -1,4 +1,3 @@
-import { useAuth } from "./AuthContext";
 /* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
@@ -18,7 +17,6 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated } = useAuth();
   const [theme, setThemeState] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem("theme");
 
@@ -30,7 +28,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       return savedTheme;
     }
 
-    return "light";
+    return "system";
   });
 
   useEffect(() => {
@@ -38,9 +36,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
     const applyTheme = () => {
       const isDark =
-        isAuthenticated && (theme === "dark" ||
+        theme === "dark" ||
         (theme === "system" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches));
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
 
       root.classList.toggle("dark", isDark);
     };
@@ -56,16 +54,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         mediaQuery.removeEventListener("change", applyTheme);
       };
     }
-  }, [theme, isAuthenticated]);
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
-    if (!isAuthenticated) return;
     setThemeState(newTheme);
     localStorage.setItem("theme", newTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme: isAuthenticated ? theme : "light", setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

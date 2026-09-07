@@ -64,7 +64,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         queryKey: ["recent-transactions"],
       });
 
-      reset({ title: "", amount: "", type: "income", category: "", occurredAt: todayDate() });
+      reset({
+        title: "",
+        amount: "",
+        type: "income",
+        category: "",
+        occurredAt: todayDate(),
+      });
       onClose();
     },
 
@@ -84,7 +90,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
       onClick={() => {
-        reset({ title: "", amount: "", type: "income", category: "", occurredAt: todayDate() });
+        reset({
+          title: "",
+          amount: "",
+          type: "income",
+          category: "",
+          occurredAt: todayDate(),
+        });
         onClose();
       }}
     >
@@ -101,7 +113,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           <button
             type="button"
             onClick={() => {
-              reset({ title: "", amount: "", type: "income", category: "", occurredAt: todayDate() });
+              reset({
+                title: "",
+                amount: "",
+                type: "income",
+                category: "",
+                occurredAt: todayDate(),
+              });
               onClose();
             }}
             aria-label="Close add transaction modal"
@@ -155,7 +173,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   inputMode="decimal"
                   placeholder="e.g. 50,000"
                   value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value.replace(/,/g, ""))}
+                  onChange={(e) =>
+                    field.onChange(e.target.value.replace(/,/g, ""))
+                  }
                   onBlur={field.onBlur}
                   ref={field.ref}
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-gray-500"
@@ -217,9 +237,30 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
           {/* Transaction date */}
           <div>
-            <label htmlFor="add-date" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200">Transaction date</label>
-            <input id="add-date" type="date" {...register("occurredAt")} aria-invalid={!!errors.occurredAt} aria-describedby={errors.occurredAt ? "add-date-error" : undefined} className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark]" />
-            {errors.occurredAt && <p id="add-date-error" className="mt-1 text-sm text-red-500 dark:text-red-400">{errors.occurredAt.message}</p>}
+            <label
+              htmlFor="add-date"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >
+              Transaction date
+            </label>
+            <input
+              id="add-date"
+              type="date"
+              {...register("occurredAt")}
+              aria-invalid={!!errors.occurredAt}
+              aria-describedby={
+                errors.occurredAt ? "add-date-error" : undefined
+              }
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:scheme-dark"
+            />
+            {errors.occurredAt && (
+              <p
+                id="add-date-error"
+                className="mt-1 text-sm text-red-500 dark:text-red-400"
+              >
+                {errors.occurredAt.message}
+              </p>
+            )}
           </div>
 
           {/* Category */}
@@ -251,7 +292,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                reset({ title: "", amount: "", type: "income", category: "", occurredAt: todayDate() });
+                reset({
+                  title: "",
+                  amount: "",
+                  type: "income",
+                  category: "",
+                  occurredAt: todayDate(),
+                });
                 onClose();
               }}
               className="w-full rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto"
