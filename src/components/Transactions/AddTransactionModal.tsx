@@ -244,14 +244,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               Transaction date
             </label>
             <input
-              id="add-date"
+              id="edit-date"
               type="date"
               {...register("occurredAt")}
               aria-invalid={!!errors.occurredAt}
               aria-describedby={
-                errors.occurredAt ? "add-date-error" : undefined
+                errors.occurredAt ? "edit-date-error" : undefined
               }
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:scheme-dark"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-gray-500 dark:scheme-dark"
             />
             {errors.occurredAt && (
               <p
