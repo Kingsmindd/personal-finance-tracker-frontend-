@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { apiError } from "../../utils/apiError";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -61,6 +62,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     },
 
     onSuccess: () => {
+      toast.success("Transaction updated.", { id: "transaction-result" });
       queryClient.invalidateQueries({ queryKey: ["monthly-analytics"] });
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
@@ -79,7 +81,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
 
     onError: (error) => {
       console.error("UPDATE TRANSACTION ERROR:", error);
-      alert(apiError(error, "Failed to update transaction."));
+      toast.error(apiError(error, "Failed to update transaction."), { id: "transaction-result" });
     },
   });
 

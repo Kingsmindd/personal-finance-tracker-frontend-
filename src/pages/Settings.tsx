@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import React from "react";
 import SettingsLayout, { SettingsLink, SettingsNotice } from "../components/SettingsLayout";
 import { useNavigate } from "react-router-dom";
@@ -42,6 +43,7 @@ const Settings: React.FC = () => {
   }, [deleteError]);
   const handleLogout = async () => {
     await logout();
+    toast.success("Signed out successfully.", { id: "account-session" });
     navigate("/login");
   };
 
@@ -99,6 +101,7 @@ const Settings: React.FC = () => {
       });
 
       await logout();
+      toast.success("Your account has been deleted.", { id: "account-session" });
       navigate("/login", { replace: true });
     } catch (error) {
       if (axios.isAxiosError(error)) {

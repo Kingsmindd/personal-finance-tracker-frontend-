@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import AuthCard from "../components/AuthCard";
 import { SettingsNotice as Notice } from "../components/SettingsLayout";
 import React, { useEffect, useState } from "react";
@@ -53,6 +54,7 @@ const ResetPassword: React.FC = () => {
 
       reset();
       setStatus("success");
+      toast.success("Password reset successfully. You can sign in now.", { id: "password-recovery" });
       setServerMessage(response.message);
     } catch (error) {
       setStatus("error");

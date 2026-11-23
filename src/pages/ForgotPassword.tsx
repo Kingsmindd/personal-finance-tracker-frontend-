@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import AuthCard from "../components/AuthCard";
 import { SettingsNotice as Notice } from "../components/SettingsLayout";
 import React, { useEffect, useState } from "react";
@@ -41,6 +42,7 @@ const ForgotPassword: React.FC = () => {
 
       setRegisteredEmail(data.email);
       setStatus("success");
+      toast.success("Reset request received. Check your inbox.", { id: "password-recovery" });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(

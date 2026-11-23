@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { SettingsNotice as Notice } from "../SettingsLayout";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -60,6 +61,7 @@ const LoginForm: React.FC = () => {
       const response = await api.post("/auth/login", data);
 
       login(response.data.token, response.data.user);
+      toast.success("Signed in. Welcome back.", { id: "account-session" });
 
       navigate("/dashboard");
     } catch (error) {

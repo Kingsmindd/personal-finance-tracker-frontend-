@@ -120,6 +120,7 @@ const Transactions: React.FC = () => {
 
       link.remove();
       window.URL.revokeObjectURL(url);
+      setNotice({ message: "Your CSV export is ready. Check your downloads." });
     } catch (error) {
       console.error(error);
       setNotice({ message: "We couldn’t export your transactions. Please try again.", error: true });

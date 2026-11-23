@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import VerifiedTransactionGate from "./VerifiedTransactionGate";
 import { useTransactionDate } from "../../hooks/useTransactionDate";
 import { todayDate } from "../../utils/transactionDate";
@@ -52,6 +53,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     mutationFn: createTransaction,
 
     onSuccess: () => {
+      toast.success("Transaction added.", { id: "transaction-result" });
       queryClient.invalidateQueries({ queryKey: ["monthly-analytics"] });
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
@@ -77,7 +79,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
     onError: (error) => {
       console.error(error);
-      alert(apiError(error, "Failed to create transaction."));
+      toast.error(apiError(error, "Failed to create transaction."), { id: "transaction-result" });
     },
   });
 

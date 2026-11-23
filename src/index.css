@@ -26,3 +26,7 @@ input.peer:focus-visible + div { outline: 2px solid #2563eb; outline-offset: 3px
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Notification surfaces inherit the active application theme. */
+:root { --finance-toast-bg: #ffffff; --finance-toast-text: #374151; --finance-toast-border: #dbe4f0; --finance-toast-error-border: #fecaca; }
+html.dark { --finance-toast-bg: #111827; --finance-toast-text: #d1d5db; --finance-toast-border: #334155; --finance-toast-error-border: #713b43; }

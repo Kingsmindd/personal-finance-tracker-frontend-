@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api/axios";
 import AuthCard from "../components/AuthCard";
@@ -72,6 +73,7 @@ const VerifyEmail: React.FC = () => {
 
         void queryClient.invalidateQueries({ queryKey: ["verification-status"] });
         setStatus("success");
+        toast.success(response.message, { id: "email-verification" });
         setMessage(response.message);
       } catch (error: unknown) {
         setStatus("error");
