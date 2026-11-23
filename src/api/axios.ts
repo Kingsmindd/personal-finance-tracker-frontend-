@@ -1,6 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 
-import { getSession, getSessionGeneration, setSession } from "../lib/session";
+import { getSession, getSessionGeneration, setSession, getTokenExpiry, isAccessTokenFresh } from "../lib/session";
 
 interface SessionRequest extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -10,14 +10,14 @@ interface SessionRequest extends InternalAxiosRequestConfig {
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
-  timeout: 90000,
+  timeout: 20000,
 
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-api.interceptors.request.use((config: SessionRequest) => {
+api.interceptors.request.use(async (config: SessionRequest) => {
   if (
     config._generation !== undefined &&
     config._generation !== getSessionGeneration()
@@ -27,7 +27,14 @@ api.interceptors.request.use((config: SessionRequest) => {
 
   config._generation = getSessionGeneration();
 
-  const session = getSession();
+  let session = getSession();
+  const path = (config.url || "").split("?")[0];
+  if (session && !path.startsWith("/auth/") && getTokenExpiry(session.token) !== null && !isAccessTokenFresh(session.token)) {
+    await refreshSession(config._generation);
+    if (config._generation !== getSessionGeneration()) throw new axios.CanceledError("Session changed");
+    session = getSession();
+    config._retry = true;
+  }
 
   if (session) {
     config.headers.Authorization = "Bearer " + session.token;
@@ -43,24 +50,29 @@ let pendingRefresh: {
   promise: Promise<string>;
 } | null = null;
 
-function refreshSession(generation: number): Promise<string> {
+export function refreshSession(generation: number): Promise<string> {
   if (pendingRefresh?.generation === generation) {
     return pendingRefresh.promise;
   }
 
+  const startingToken = getSession()?.token;
   const promise = api
-    .post("/auth/refresh")
+    .post("/auth/refresh", undefined, { timeout: 12000 })
     .then((response) => {
       const current = getSession();
 
-      if (generation !== getSessionGeneration() || !current) {
+      if (generation !== getSessionGeneration() || !current || current.token !== startingToken) {
         throw new axios.CanceledError("Session changed");
       }
 
-      if (typeof response.data.token !== "string") {
+      if (typeof response.data.token !== "string" || !isAccessTokenFresh(response.data.token)) {
         throw new Error("Invalid refresh response");
       }
 
+      if (response.data.user && response.data.user.id !== current.user.id) {
+        setSession(null);
+        throw new axios.CanceledError("Refresh account changed");
+      }
       setSession({
         ...current,
         token: response.data.token,
@@ -71,6 +83,7 @@ function refreshSession(generation: number): Promise<string> {
     .catch((error) => {
       if (
         generation === getSessionGeneration() &&
+        getSession()?.token === startingToken &&
         axios.isAxiosError(error) &&
         error.response?.status === 401
       ) {
@@ -107,6 +120,11 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config as SessionRequest | undefined;
 
+    if (original?._retry && error.response?.status === 401 &&
+        original._generation === getSessionGeneration() &&
+        original.headers.Authorization === "Bearer " + getSession()?.token) {
+      setSession(null);
+    }
     if (
       !original ||
       error.response?.status !== 401 ||

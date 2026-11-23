@@ -49,8 +49,10 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
       .readFileSync(file, "utf8")
       .replace("import.meta.env.VITE_API_URL", '"https://test.invalid/api"');
     const code = ts.transpileModule(source, {
+      fileName: file,
       compilerOptions: {
         module: ts.ModuleKind.CommonJS,
+        jsx: ts.JsxEmit.ReactJSX,
         target: ts.ScriptTarget.ES2022,
         esModuleInterop: true,
       },
@@ -70,7 +72,7 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
               },
             }
           : id.startsWith(".")
-            ? load(path.resolve(path.dirname(file), id + ".ts"))
+            ? load(path.resolve(path.dirname(file), id + (fs.existsSync(path.resolve(path.dirname(file), id + ".ts")) ? ".ts" : ".tsx")))
             : require(id);
     new Function("require", "module", "exports", code)(
       localRequire,
@@ -134,13 +136,20 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
       ),
     );
   const delay = () => new Promise<void>((resolve) => setTimeout(resolve, 10));
+  const jwtToken = (expiresAt: number, id = "a") =>
+    "header." + Buffer.from(JSON.stringify({ exp: expiresAt, id })).toString("base64url") + ".signature";
+  const freshToken = jwtToken(Math.floor(Date.now() / 1000) + 900);
+  assert.equal(session.isAccessTokenFresh(freshToken), true);
+  assert.equal(session.isAccessTokenFresh(jwtToken(Math.floor(Date.now() / 1000) - 1)), false);
+  assert.equal(session.isAccessTokenFresh("malformed"), false);
+  assert.equal(session.isAccessTokenFresh("header." + Buffer.from("{}").toString("base64url") + ".signature"), false);
   session.setSession({ token: "old", user });
   let refreshes = 0;
   api.defaults.adapter = async (config) => {
     if (config.url === "/auth/refresh") {
       refreshes++;
       await delay();
-      return response(config, { token: "new" });
+      return response(config, { token: freshToken });
     }
     if (config.headers.Authorization === "Bearer old")
       return unauthorized(config);
@@ -152,7 +161,7 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
     api.get("/analytics/monthly"),
   ]);
   assert.equal(refreshes, 1);
-  assert.equal(session.getSession()?.token, "new");
+  assert.equal(session.getSession()?.token, freshToken);
   let changes = 0;
   const unsubscribe = session.subscribeSession(() => changes++);
   api.defaults.adapter = (config) => unauthorized(config);
@@ -189,4 +198,114 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
       : unauthorized(config);
   await assert.rejects(api.get("/transactions"));
   assert.equal(session.getSession()?.token, "b-token");
+  // Expired saved tokens are renewed before any dashboard request leaves the app.
+  const expiredToken = jwtToken(Math.floor(Date.now() / 1000) - 60);
+  session.setSession({ token: expiredToken, user });
+  refreshes = 0;
+  let protectedCalls = 0;
+  assert.equal(api.defaults.timeout, 20000);
+  api.defaults.adapter = async config => {
+    if (config.url === "/auth/refresh") {
+      assert.equal(config.timeout, 12000);
+      refreshes++;
+      await delay();
+      return response(config, { token: freshToken, user });
+    }
+    protectedCalls++;
+    assert.equal(config.headers.Authorization, "Bearer " + freshToken);
+    return response(config, { ok: true });
+  };
+  await Promise.all([api.get("/transactions"), api.get("/analytics/summary")]);
+  assert.equal(refreshes, 1);
+  assert.equal(protectedCalls, 2);
+
+  // No trusted-device cookie: clear the expired session without loading the dashboard.
+  session.setSession({ token: expiredToken, user });
+  protectedCalls = 0;
+  api.defaults.adapter = async config => {
+    if (config.url === "/auth/refresh") return unauthorized(config);
+    protectedCalls++;
+    return response(config, {});
+  };
+  await assert.rejects(api.get("/transactions"));
+  assert.equal(protectedCalls, 0);
+  assert.equal(session.getSession(), null);
+
+  // A network timeout keeps the saved account available for an explicit retry.
+  session.setSession({ token: expiredToken, user });
+  api.defaults.adapter = async config => { throw new axios.AxiosError("timeout", "ECONNABORTED", config); };
+  await assert.rejects(api.get("/transactions"));
+  assert.equal(session.getSession()?.token, expiredToken);
+
+  // A refresh response belonging to another account must never be adopted.
+  api.defaults.adapter = async config => response(config, { token: freshToken, user: { ...user, id: "other" } });
+  await assert.rejects(api.get("/transactions"));
+  assert.equal(session.getSession(), null);
+
+  // A late rejected refresh cannot sign out a newer login to the same account.
+  session.setSession({ token: "old", user });
+  let releaseSameAccount = () => {};
+  const sameAccountWait = new Promise<void>(resolve => { releaseSameAccount = resolve; });
+  api.defaults.adapter = async config => {
+    if (config.url === "/auth/refresh") await sameAccountWait;
+    return unauthorized(config);
+  };
+  const staleRequest = api.get("/transactions");
+  await delay();
+  const newerToken = jwtToken(Math.floor(Date.now() / 1000) + 1200);
+  session.setSession({ token: newerToken, user });
+  releaseSameAccount();
+  await assert.rejects(staleRequest);
+  assert.equal(session.getSession()?.token, newerToken);
+
+  // A rejected renewed token is final; do not enter another refresh/retry loop.
+  session.setSession({ token: expiredToken, user });
+  refreshes = 0;
+  api.defaults.adapter = async config => {
+    if (config.url === "/auth/refresh") { refreshes++; return response(config, { token: freshToken }); }
+    return unauthorized(config);
+  };
+  await assert.rejects(api.get("/transactions"));
+  assert.equal(refreshes, 1);
+  assert.equal(session.getSession(), null);
+
+  const queryClient = load<typeof import("../lib/queryClient")>(root + "src/lib/queryClient.ts").queryClient;
+  const retry = queryClient.getDefaultOptions().queries?.retry;
+  assert.equal(typeof retry, "function");
+  if (typeof retry === "function") {
+    const config = { headers: new axios.AxiosHeaders() } as InternalAxiosRequestConfig;
+    assert.equal(retry(0, new axios.AxiosError("unauthorized", "ERR_BAD_REQUEST", config, {}, response(config, {}, 401))), false);
+    assert.equal(retry(0, new axios.CanceledError("session changed")), false);
+    assert.equal(retry(0, new axios.AxiosError("offline", "ERR_NETWORK", config)), true);
+    assert.equal(retry(1, new axios.AxiosError("offline", "ERR_NETWORK", config)), false);
+  }
+
+  // The reported homepage -> blank dashboard -> late login sequence must stay gated.
+  const React = require("react") as typeof import("react");
+  const { renderToStaticMarkup } = require("react-dom/server") as typeof import("react-dom/server");
+  const { MemoryRouter } = require("react-router-dom") as typeof import("react-router-dom");
+  const Auth = load<typeof import("../context/AuthContext")>(root + "src/context/AuthContext.tsx").default;
+  const Protected = load<typeof import("../components/Protectedroute")>(root + "src/components/Protectedroute.tsx").default;
+  const Home = load<typeof import("../pages/Homepage")>(root + "src/pages/Homepage.tsx").default;
+  function renderAuth(loading: boolean, error: string | null, signedIn: boolean, home: boolean) {
+    const value = {
+      user: signedIn ? user : null, token: signedIn ? freshToken : expiredToken,
+      isAuthenticated: signedIn, loading, sessionError: error,
+      retrySession() {}, login() {}, logout: async () => {}, updateUser() {},
+    };
+    const child = home ? React.createElement(Home) : React.createElement(Protected, { children: React.createElement("p", null, "Private account data") });
+    return renderToStaticMarkup(React.createElement(MemoryRouter, null, React.createElement(Auth.Provider, { value }, child)));
+  }
+  const checking = renderAuth(true, null, false, true);
+  assert.ok(checking.includes("Checking session"));
+  assert.ok(!checking.includes('href="/dashboard"'));
+  assert.ok(!checking.includes("Get started"));
+  assert.ok(!renderAuth(true, null, false, false).includes("Private account data"));
+  const unavailable = renderAuth(false, "Connection unavailable", false, false);
+  assert.ok(unavailable.includes("Try again"));
+  assert.ok(!unavailable.includes("Private account data"));
+  assert.ok(renderAuth(false, null, true, true).includes('href="/dashboard"'));
+  assert.ok(renderAuth(false, null, true, false).includes("Private account data"));
+  assert.ok(renderAuth(false, null, false, true).includes("Get started"));
+
 });

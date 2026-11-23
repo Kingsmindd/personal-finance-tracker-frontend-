@@ -1,11 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useSyncExternalStore } from "react";
-import api from "../api/axios";
+import { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react";
+import api, { refreshSession } from "../api/axios";
 import {
   getSession,
   getSessionGeneration,
   setSession,
   subscribeSession,
+  getTokenExpiry,
+  isAccessTokenFresh,
   type SessionUser,
 } from "../lib/session";
 interface AuthContextType {
@@ -13,6 +15,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
+  sessionError: string | null;
+  retrySession: () => void;
   login: (token: string, user: SessionUser) => void;
   logout: () => Promise<void>;
   updateUser: (user: SessionUser) => void;
@@ -21,6 +25,39 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const session = useSyncExternalStore(subscribeSession, getSession);
+  const [checkVersion, setCheckVersion] = useState(0);
+  const [failure, setFailure] = useState<{ token: string; message: string } | null>(null);
+  const token = session?.token;
+  const fresh = Boolean(token && isAccessTokenFresh(token));
+  const sessionError = token && failure?.token === token ? failure.message : null;
+  const loading = Boolean(session && !fresh && !sessionError);
+  const retrySession = () => { setFailure(null); setCheckVersion(value => value + 1); };
+
+  useEffect(() => {
+    if (!token) return;
+    if (isAccessTokenFresh(token)) {
+      const expiresAt = getTokenExpiry(token)!;
+      const timer = window.setTimeout(() => setCheckVersion(value => value + 1), Math.min(2147483647, Math.max(1, expiresAt - Date.now() - 15000)));
+      const checkOnReturn = () => {
+        if (document.visibilityState === "visible" && !isAccessTokenFresh(token)) setCheckVersion(value => value + 1);
+      };
+      window.addEventListener("focus", checkOnReturn);
+      document.addEventListener("visibilitychange", checkOnReturn);
+      return () => {
+        window.clearTimeout(timer);
+        window.removeEventListener("focus", checkOnReturn);
+        document.removeEventListener("visibilitychange", checkOnReturn);
+      };
+    }
+    let active = true;
+    const version = getSessionGeneration();
+    void refreshSession(version).catch(() => {
+      if (active && version === getSessionGeneration() && getSession()?.token === token) {
+        setFailure({ token, message: "We couldn’t reconnect to your account. Please try again." });
+      }
+    });
+    return () => { active = false; };
+  }, [token, checkVersion]);
 
   const login = (token: string, user: SessionUser) =>
     setSession({ token, user });
@@ -42,10 +79,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        user: session?.user ?? null,
+        user: fresh ? session?.user ?? null : null,
         token: session?.token ?? null,
-        isAuthenticated: !!session,
-        loading: false,
+        isAuthenticated: fresh,
+        loading,
+        sessionError,
+        retrySession,
         login,
         logout,
         updateUser,

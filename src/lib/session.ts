@@ -9,6 +9,20 @@ export interface Session {
   token: string;
   user: SessionUser;
 }
+// Expiry is a UI hint; the API still verifies token signatures and account access.
+export function getTokenExpiry(token: string): number | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3 || token.length > 10000) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return Number.isSafeInteger(payload.exp) && payload.exp > 0 ? payload.exp * 1000 : null;
+  } catch { return null; }
+}
+export function isAccessTokenFresh(token: string, now = Date.now()): boolean {
+  const expiresAt = getTokenExpiry(token);
+  return expiresAt !== null && expiresAt > now + 15000;
+}
+
 function readSession(): Session | null {
   try {
     const token = localStorage.getItem("token");
