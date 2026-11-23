@@ -1,4 +1,5 @@
 import React from "react";
+import SettingsLayout, { SettingsLink, SettingsNotice } from "../components/SettingsLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -8,8 +9,9 @@ import {
   Coins,
   Palette,
   Download,
-  ChevronRight,
-  ArrowLeft,
+  Settings as SettingsIcon,
+  Trash2,
+  LoaderCircle,
 } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
@@ -17,6 +19,7 @@ import { downloadTransactions } from "../services/transaction";
 import axios from "axios";
 
 const Settings: React.FC = () => {
+  const [notice, setNotice] = React.useState<{message: string; error?: boolean} | null>(null);
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [currentPassword, setCurrentPassword] = React.useState("");
@@ -26,6 +29,16 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
+  React.useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), notice.error ? 7000 : 5000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+  React.useEffect(() => {
+    if (!deleteError) return;
+    const timer = window.setTimeout(() => setDeleteError(""), 7000);
+    return () => window.clearTimeout(timer);
+  }, [deleteError]);
   const handleLogout = async () => {
     await logout();
     navigate("/login");
@@ -48,9 +61,10 @@ const Settings: React.FC = () => {
 
       link.remove();
       window.URL.revokeObjectURL(url);
+      setNotice({ message: "Your CSV export is ready. Check your downloads." });
     } catch (error) {
       console.error("Failed to download transactions:", error);
-      alert("Failed to download transactions.");
+      setNotice({ message: "We couldn’t export your transactions. Please try again.", error: true });
     } finally {
       setIsDownloading(false);
     }
@@ -99,260 +113,24 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-5 dark:bg-gray-900 sm:px-6 sm:py-6 lg:px-8">
-      <div className="mx-auto w-full max-w-3xl">
-        {/* Header */}
-        {/* Page Header */}
-        <div className="relative mb-6 flex items-center justify-center sm:mb-8">
-          {/* Back button */}
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard")}
-            aria-label="Back to dashboard"
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white sm:h-11 sm:w-11"
-          >
-            <ArrowLeft size={20} />
-          </button>
-
-          {/* Page title */}
-          <div className="px-14 text-center sm:px-16">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
-              Settings
-            </h1>
-
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
-              Manage your account and preferences
-            </p>
-          </div>
-        </div>
-
-        {/* Account */}
-        <section className="mb-6 sm:mb-8">
-          <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-400 sm:text-sm">
-            ACCOUNT
-          </h2>
-
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            {/* Profile */}
-            <button
-              type="button"
-              onClick={() => navigate("/profile")}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <User
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Profile
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  Manage your personal information
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-
-            <div className="border-t border-gray-200 dark:border-gray-700" />
-
-            {/* Security */}
-            <button
-              type="button"
-              onClick={() => navigate("/settings/security")}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <Shield
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Security
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  Password and account security
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-
-            <div className="border-t border-gray-200 dark:border-gray-700" />
-
-            {/* Logout */}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <LogOut
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Log out
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  Sign out of your account
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-          </div>
-        </section>
-
-        {/* Preferences */}
-        <section className="mb-6 sm:mb-8">
-          <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-400 sm:text-sm">
-            PREFERENCES
-          </h2>
-
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            {/* Currency */}
-            <button
-              type="button"
-              onClick={() => navigate("/settings/preferences/currency")}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <Coins
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Currency
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  {user?.currency}
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-
-            <div className="border-t border-gray-200 dark:border-gray-700" />
-
-            {/* Appearance */}
-            <button
-              type="button"
-              onClick={() => navigate("/settings/preferences/appearance")}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <Palette
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Appearance
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  Choose your preferred theme
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-          </div>
-        </section>
-
-        {/* Data */}
-        <section className="mb-6 sm:mb-8">
-          <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-400 sm:text-sm">
-            DATA
-          </h2>
-
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <button
-              type="button"
-              onClick={handleDownloadTransactions}
-              disabled={isDownloading}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-gray-700 sm:gap-4"
-            >
-              <Download
-                size={19}
-                className="shrink-0 text-gray-500 dark:text-gray-400"
-              />
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  {isDownloading ? "Downloading..." : "Export transactions"}
-                </p>
-
-                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                  Download your transaction data
-                </p>
-              </div>
-
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-gray-400 dark:text-gray-500"
-              />
-            </button>
-          </div>
-        </section>
-
-        {/* Danger Zone */}
-        <section className="pb-6 sm:pb-8">
-          <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-red-500 sm:text-sm dark:text-red-400">
-            DANGER ZONE
-          </h2>
-
-          <div className="overflow-hidden rounded-2xl border border-red-200 bg-white shadow-sm dark:border-red-900 dark:bg-gray-800">
-            <button
-              type="button"
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="w-full p-4 text-left transition hover:bg-red-50 dark:hover:bg-red-950/30"
-            >
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">
-                Delete account
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                Permanently delete your account and financial data
-              </p>
-            </button>
-          </div>
-        </section>
+    <SettingsLayout title="Make it yours." description="Manage your account, preferences, and financial records in one place." icon={SettingsIcon} back="/dashboard" backLabel="Back to dashboard">
+      <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-blue-50 text-lg font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">{(user?.name || user?.email || "U").slice(0,1).toUpperCase()}</span><div className="min-w-0"><p className="break-words font-semibold text-gray-900 dark:text-white">{user?.name || "Your account"}</p><p className="mt-1 break-all text-sm text-gray-500 dark:text-gray-400">{user?.email}</p></div></div>
+      <SettingsNotice message={notice?.message || ""} error={notice?.error} />
+      <div className="grid items-start gap-6 md:grid-cols-2">
+        {[{ label: "Account", links: [{to:"/profile",title:"Profile",description:"Update your name and view account details.",icon:User},{to:"/settings/security",title:"Security",description:"Manage your password and signed-in devices.",icon:Shield}] },{label:"Preferences",links:[{to:"/settings/preferences/currency",title:"Currency",description:"Display currency · " + (user?.currency || "NGN"),icon:Coins},{to:"/settings/preferences/appearance",title:"Appearance",description:"Choose light, dark, or your device theme.",icon:Palette}]}].map(group => <section key={group.label}><h2 className="mb-3 px-1 text-xs font-semibold uppercase tracking-widest text-gray-400">{group.label}</h2><div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900">{group.links.map(link => <SettingsLink key={link.to} {...link} />)}</div></section>)}
+      </div>
+      <section><h2 className="mb-3 px-1 text-xs font-semibold uppercase tracking-widest text-gray-400">Your data & account access</h2><div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900"><button type="button" disabled={isDownloading} onClick={handleDownloadTransactions} className="flex w-full cursor-pointer items-center gap-4 p-5 text-left transition hover:bg-blue-50/50 disabled:cursor-wait disabled:opacity-60 dark:hover:bg-blue-950/20 sm:p-6"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">{isDownloading ? <LoaderCircle size={20} className="animate-spin motion-reduce:animate-none" /> : <Download size={20} />}</span><span><span className="block text-sm font-semibold text-gray-900 dark:text-white">{isDownloading ? "Preparing your export…" : "Export all transactions"}</span><span className="mt-1 block text-xs leading-5 text-gray-500 dark:text-gray-400">Download all your records as a CSV file.</span></span></button><button type="button" onClick={handleLogout} className="flex w-full cursor-pointer items-center gap-4 p-5 text-left transition hover:bg-gray-50 dark:hover:bg-gray-800/40 sm:p-6"><span className="grid h-11 w-11 place-items-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"><LogOut size={20} /></span><span><span className="block text-sm font-semibold text-gray-900 dark:text-white">Sign out</span><span className="mt-1 block text-xs leading-5 text-gray-500 dark:text-gray-400">Sign out on this device.</span></span></button></div></section>
+      <section className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-red-100 bg-white p-5 dark:border-red-900/40 dark:bg-gray-900 sm:flex-row sm:items-center sm:p-6"><div><h2 className="text-sm font-semibold text-red-700 dark:text-red-400">Delete account</h2><p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">Permanently remove your account and financial records.</p></div><button type="button" onClick={() => setIsDeleteModalOpen(true)} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/30"><Trash2 size={16} aria-hidden="true" />Delete account</button></section>
         {isDeleteModalOpen && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 px-4 py-6 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-account-title"
           >
             <form
               onSubmit={handleDeleteAccount}
-              className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+              className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900 sm:p-8"
             >
               <h2
                 id="delete-account-title"
@@ -380,14 +158,16 @@ const Settings: React.FC = () => {
                   onChange={(event) => setCurrentPassword(event.target.value)}
                   type={showDeletePassword ? "text" : "password"}
                   autoComplete="current-password"
+                  disabled={isDeleting}
+                  required
                   placeholder="Current password"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 outline-none transition focus:border-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="min-h-12 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 outline-none transition focus:border-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowDeletePassword(!showDeletePassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300"
+                  className="absolute right-3 cursor-pointer top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300"
                   aria-label={
                     showDeletePassword ? "Hide password" : "Show password"
                   }
@@ -400,18 +180,14 @@ const Settings: React.FC = () => {
                 </button>
               </div>
 
-              {deleteError && (
-                <p className="mt-3 text-sm text-red-600 dark:text-red-400">
-                  {deleteError}
-                </p>
-              )}
+              <SettingsNotice message={deleteError} error />
 
               <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={closeDeleteModal}
                   disabled={isDeleting}
-                  className="rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                  className="min-h-12 cursor-pointer rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
@@ -429,8 +205,7 @@ const Settings: React.FC = () => {
             </form>
           </div>
         )}
-      </div>
-    </div>
+    </SettingsLayout>
   );
 };
 

@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { Eye, EyeOff, LockKeyhole } from "lucide-react";
+import AuthCard from "../components/AuthCard";
+import { SettingsNotice as Notice } from "../components/SettingsLayout";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Check, CircleAlert, Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,10 +27,17 @@ const ResetPassword: React.FC = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   });
+
+  useEffect(() => {
+    if (status !== "error" || !serverMessage) return;
+    const timer = window.setTimeout(() => setServerMessage(""), 7000);
+    return () => window.clearTimeout(timer);
+  }, [status, serverMessage]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setServerMessage("");
@@ -42,6 +51,7 @@ const ResetPassword: React.FC = () => {
     try {
       const response = await resetPassword(token, data.newPassword);
 
+      reset();
       setStatus("success");
       setServerMessage(response.message);
     } catch (error) {
@@ -58,174 +68,11 @@ const ResetPassword: React.FC = () => {
     }
   };
 
-  if (status === "success") {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl dark:bg-gray-900">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-            ✓
-          </div>
-
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Password reset successful
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {serverMessage}
-          </p>
-
-          <Link
-            to="/login"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-          >
-            Continue to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl dark:bg-gray-900">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-            !
-          </div>
-
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Invalid reset link
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            This password reset link is missing or invalid.
-          </p>
-
-          <Link
-            to="/login"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-          >
-            Back to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+  const complete = status === "success";
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-900">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-            <LockKeyhole size={24} />
-          </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Reset your password
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Create a new password for your account.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* New Password */}
-          <div>
-            <label
-              htmlFor="newPassword"
-              className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              New Password
-            </label>
-
-            <div className="relative">
-              <input
-                {...register("newPassword")}
-                id="newPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your new password"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 outline-none transition focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-
-            {errors.newPassword && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.newPassword.message}
-              </p>
-            )}
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Confirm Password
-            </label>
-
-            <div className="relative">
-              <input
-                {...register("confirmPassword")}
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your new password"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 outline-none transition focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-
-            {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
-
-          {/* Server Error */}
-          {status === "error" && serverMessage && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
-              {serverMessage}
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting ? "Resetting Password..." : "Reset Password"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Remember your password?{" "}
-          <Link
-            to="/login"
-            className="font-semibold text-gray-900 hover:underline dark:text-white"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
+    <AuthCard title={complete ? "A fresh start." : !token ? "This link is incomplete." : "Choose a new password."} description={complete ? "Your password has been reset. Sign in with your new password to continue." : !token ? "Request a new reset link to safely recover your account." : "Create a memorable password you haven’t used elsewhere."} icon={complete ? Check : !token ? CircleAlert : LockKeyhole} tone={complete ? "green" : !token ? "amber" : "blue"}>
+      {complete || !token ? <Link to={complete ? "/login" : "/forgot-password"} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">{complete ? "Continue to sign in" : "Request a new link"}<ArrowRight size={17} aria-hidden="true" /></Link> : <form onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting} className="space-y-5"><fieldset disabled={isSubmitting} className="space-y-5">{([{name:"newPassword",label:"New password",visible:showPassword,toggle:setShowPassword},{name:"confirmPassword",label:"Confirm password",visible:showConfirmPassword,toggle:setShowConfirmPassword}] as const).map(field => <div key={field.name}><label htmlFor={field.name} className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200">{field.label}</label><div className="relative"><input {...register(field.name)} id={field.name} type={field.visible ? "text" : "password"} autoComplete="new-password" placeholder={field.label} aria-invalid={!!errors[field.name]} className="min-h-12 w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pr-14 pl-4 text-base text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900" /><button type="button" onClick={() => field.toggle(value => !value)} aria-label={(field.visible ? "Hide " : "Show ") + field.label.toLowerCase()} aria-pressed={field.visible} className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">{field.visible ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>{errors[field.name] && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{errors[field.name]?.message}</p>}</div>)}<p className="text-xs leading-6 text-gray-500 dark:text-gray-400">Use at least 8 characters. A longer passphrase can be easier to remember.</p><Notice message={status === "error" ? serverMessage : ""} error /><button type="submit" className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">{isSubmitting ? <LoaderCircle size={17} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <ArrowRight size={17} aria-hidden="true" />}{isSubmitting ? "Updating password…" : "Reset password"}</button></fieldset><Link to="/forgot-password" className="inline-flex min-h-10 items-center text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">Need a fresh reset link?</Link></form>}
+    </AuthCard>
   );
 };
 

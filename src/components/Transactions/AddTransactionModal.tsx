@@ -1,3 +1,4 @@
+import VerifiedTransactionGate from "./VerifiedTransactionGate";
 import { useTransactionDate } from "../../hooks/useTransactionDate";
 import { todayDate } from "../../utils/transactionDate";
 import { apiError } from "../../utils/apiError";
@@ -129,7 +130,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5">
+        <VerifiedTransactionGate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5">
           {/* Title */}
           <div>
             <label
@@ -313,6 +315,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </button>
           </div>
         </form>
+      </VerifiedTransactionGate>
       </div>
     </div>
   );

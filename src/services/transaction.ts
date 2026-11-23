@@ -39,8 +39,10 @@ export const createTransaction = async (data: TransactionFormData) => {
 
 export const getTransactions = async (
   params?: GetTransactionsParams,
+  signal?: AbortSignal,
 ): Promise<GetTransactionsResponse> => {
   const response = await api.get<GetTransactionsResponse>("/transactions", {
+    signal,
     params: {
       page: params?.page ?? 1,
       limit: params?.limit ?? 10,

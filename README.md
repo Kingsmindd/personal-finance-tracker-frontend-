@@ -1,75 +1,104 @@
-# React + TypeScript + Vite
+# Personal Finance Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack portfolio project for recording income and expenses and understanding spending through monthly charts and summaries.
 
-Currently, two official plugins are available:
+[Live app](https://personal-finance-tracker-jet-alpha.vercel.app/) · [Frontend source](https://github.com/Kingsmindd/personal-finance-tracker-frontend-) · [API source and setup](https://github.com/Kingsmindd/personal-finance-tracker-api)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The live app may lag behind local development until both repositories are deployed.
 
-## React Compiler
+## Screenshot
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+![Public home page](docs/screenshots/home.jpg)
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Register, sign in, verify email, recover/change passwords, and manage trusted-device access.
+- Explore before verifying; verified email is required to create transactions.
+- Add, edit, delete, search, filter, sort, and paginate account-owned income/expenses.
+- Review monthly income/expense charts, monthly net balances, and summaries.
+- Export records as CSV with the actual transaction date.
+- Edit a profile name, select a theme, and choose a currency before adding records.
+- Responsive layouts, dark mode, loading/empty/error states, keyboard focus, and reduced-motion support.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Demo account
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Use this public account to explore the dashboard, transactions, and analytics:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Field | Value |
+| --- | --- |
+| Email | `umehjnr0041@gmail.com` |
+| Password | `demoaccount12345` |
 
+The account is shared. Please use fictional data only. Its development database now contains 42 sample NGN transactions across six months, covering salary, freelance income, housing, food, transport, utilities, and leisure. Local sample data is not automatically copied to the deployed database.
+
+## Stack and structure
+
+React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, React Hook Form, Zod, Recharts, Axios, and Lucide.
+
+```text
+src/
+  api/            Axios and token refresh
+  components/     Forms, transaction UI, shared account/settings layouts
+  context/        Authentication and theme providers
+  hooks/          Auth, debounce, and date behavior
+  lib/            Session state and query cache
+  pages/          Public, account, dashboard, and settings screens
+  routes/         Route configuration and protected pages
+  services/       Typed API calls and session.service.test.ts checks
+  utils/          Error and date helpers
+  validations/    Form schemas
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The separate Express API enforces ownership and permissions. Frontend visibility is not an authorization check.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Local setup
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Use Node.js 22.12+ or 24, npm, and the API repository. Follow its README to start PostgreSQL and the API first.
 
+From this repository:
+
+```powershell
+npm ci
+Copy-Item .env.example .env
+npm run dev
 ```
+
+Frontend `.env`:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Open the Vite URL printed in the terminal, normally `http://localhost:5173`. The API's `CLIENT_ORIGIN` must match it. Restart Vite after changing environment values. Only public configuration belongs in `VITE_` variables; database credentials and email keys stay on the server.
+
+## Checks
+
+```powershell
+npm run lint
+npm run build
+npm test
+```
+
+Regressions cover amount/date validation, shared concurrent refresh, expired sessions, account cache clearing, late refresh isolation, and preserving a session after network failure. Browser testing is still needed.
+
+## Design decisions
+
+- One account currency avoids adding unrelated monetary units. Currency changes are blocked while transactions exist; amounts are not converted.
+- Calendar dates use UTC. CSV exports use `YYYY-MM-DD` transaction dates rather than creation dates.
+- Storage and authoritative arithmetic use Prisma Decimal on the API; charts use numbers for display.
+- Search is debounced, obsolete requests are cancelled, and existing results stay visible during updates.
+- Transient success notices last five seconds, errors seven seconds, and animate in/out with reduced-motion support. Completion screens stay available to read.
+
+## Authentication and limits
+
+Access tokens last 15 minutes and are stored in browser localStorage. Trusted-device refresh tokens use an HTTP-only cookie, rotate, and expire after 30 days. Account changes clear cached financial data.
+
+Sign-out-all revokes refresh access, but existing access tokens can remain valid until expiry. Browser privacy settings can affect cross-site refresh cookies. This project records transactions; it does not connect to bank accounts.
+
+## Deployment
+
+Use this repository as the Vercel project root. Build: `npm run build`. Output: `dist`. Set `VITE_API_URL` to the deployed API URL ending in `/api`, then redeploy. `vercel.json` provides the SPA fallback.
+
+Set the API's `CLIENT_ORIGIN` to the exact frontend HTTPS origin. Deploy both repositories for changes that span the frontend and backend. Test email links, cookies, direct routes, transaction CRUD, charts, and CSV after deployment.
+
+TypeScript regression checks live in `src/services/session.service.test.ts` beside the API services. They run through `npm test` and are excluded from the production build.

@@ -1,286 +1,37 @@
-import React from "react";
-import { ArrowRight, BarChart3, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, ArrowUpRight, BarChart3, Check, ReceiptText, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import type { MouseEvent } from "react";
 
-const Homepage: React.FC = () => {
+export default function Homepage() {
+  const { user } = useAuth();
+  const destination = user ? "/dashboard" : "/register";
+  const primary = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
+  function jumpTo(event: MouseEvent<HTMLAnchorElement>, id: string) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+  }
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white text-gray-900 transition-colors dark:bg-gray-950 dark:text-white">
-      {/* Navbar */}
-      <nav className="border-b border-gray-100 dark:border-gray-800">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-          {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 dark:bg-blue-600">
-              <Wallet size={18} className="text-white" />
-            </div>
-
-            <span className="text-base font-bold tracking-tight text-gray-900 dark:text-white sm:text-lg">
-              FinanceTracker
-            </span>
-          </Link>
-
-          {/* Navigation */}
-          <div className="hidden items-center gap-8 md:flex">
-            <a
-              href="#features"
-              className="text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-            >
-              Features
-            </a>
-
-            <a
-              href="#how-it-works"
-              className="text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-            >
-              How it works
-            </a>
-          </div>
-
-          {/* Auth buttons */}
-          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-            <Link
-              to="/login"
-              className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 sm:px-4 sm:py-2.5"
-            >
-              Login
-            </Link>
-
-            <Link
-              to="/register"
-              className="inline-flex min-h-11 items-center rounded-xl bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 sm:px-4 sm:py-2.5"
-            >
-              Get Started
-            </Link>
-          </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-white">
+      <nav aria-label="Main navigation" className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+          <Link to="/" className="flex items-center gap-2.5"><span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 text-white"><Wallet size={20} aria-hidden="true" /></span><span className="text-sm font-bold tracking-tight sm:text-base">Finance Tracker<span className="hidden text-xs font-normal text-gray-400 sm:block">A clearer picture of your money.</span></span></Link>
+          <div className="hidden gap-6 lg:flex"><a href="#features" onClick={event => jumpTo(event,"features")} className="text-sm font-medium text-gray-500 transition-colors hover:text-blue-700 dark:hover:text-blue-400">Features</a><a href="#how-it-works" onClick={event => jumpTo(event,"how-it-works")} className="text-sm font-medium text-gray-500 transition-colors hover:text-blue-700 dark:hover:text-blue-400">How it works</a></div>
+          <div className="flex items-center gap-2">{!user && <Link to="/login" className="inline-flex min-h-11 items-center rounded-xl border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">Sign in</Link>}<Link to={destination} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:px-4">{user ? "Dashboard" : "Get started"}<ArrowRight size={15} aria-hidden="true" /></Link></div>
         </div>
       </nav>
-
-      {/* Hero */}
-      <section className="px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-20 md:pb-28 md:pt-28">
-        <div className="mx-auto max-w-5xl text-center">
-          {/* Badge */}
-          <div className="mx-auto mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 sm:px-4 sm:text-sm">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
-            Take control of your finances
-          </div>
-
-          {/* Heading */}
-          <h1 className="mx-auto max-w-4xl text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-            Manage your money.
-            <br />
-            <span className="text-gray-500 dark:text-gray-400">
-              Understand your spending.
-            </span>
-          </h1>
-
-          {/* Description */}
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-gray-500 dark:text-gray-400 sm:mt-6 sm:text-base sm:leading-7 md:text-lg">
-            FinanceTracker helps you record your income and expenses, monitor
-            your balance, and understand where your money goes — all from one
-            simple dashboard.
-          </p>
-
-          {/* Hero Buttons */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              to="/register"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 sm:w-auto"
-            >
-              Start Tracking
-              <ArrowRight size={18} />
-            </Link>
-
-            <Link
-              to="/login"
-              className="w-full rounded-xl border border-gray-200 px-6 py-3.5 text-center text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 sm:w-auto"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section
-        id="features"
-        className="border-y border-gray-100 bg-gray-50 px-4 py-16 dark:border-gray-800 dark:bg-gray-900 sm:px-6 sm:py-20"
-      >
-        <div className="mx-auto max-w-6xl">
-          {/* Section Heading */}
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-              FEATURES
-            </p>
-
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
-              Everything you need to stay organized
-            </h2>
-
-            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-              Keep track of your finances without making money management
-              complicated.
-            </p>
-          </div>
-
-          {/* Feature Cards */}
-          <div className="mt-10 grid gap-5 sm:mt-12 md:grid-cols-3 md:gap-6">
-            {/* Feature 1 */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 sm:p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
-                <Wallet
-                  size={20}
-                  className="text-gray-700 dark:text-gray-200"
-                />
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold text-gray-900 dark:text-white">
-                Track Transactions
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                Quickly record your income and expenses and keep all your
-                financial activity in one place.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 sm:p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
-                <BarChart3
-                  size={20}
-                  className="text-gray-700 dark:text-gray-200"
-                />
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold text-gray-900 dark:text-white">
-                Understand Your Finances
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                View your income, expenses, balance, and financial activity
-                through a simple dashboard.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 sm:p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
-                <ShieldCheck
-                  size={20}
-                  className="text-gray-700 dark:text-gray-200"
-                />
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold text-gray-900 dark:text-white">
-                Keep Things Organized
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                Categorize your transactions and maintain a clear picture of
-                where your money is going.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section
-        id="how-it-works"
-        className="bg-white px-4 py-16 dark:bg-gray-950 sm:px-6 sm:py-20"
-      >
-        <div className="mx-auto max-w-6xl">
-          {/* Section Heading */}
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-              HOW IT WORKS
-            </p>
-
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
-              Start managing your finances in three steps
-            </h2>
-          </div>
-
-          {/* Steps */}
-          <div className="mt-10 grid gap-8 sm:mt-12 md:grid-cols-3">
-            <div>
-              <span className="text-sm font-bold text-gray-400 dark:text-gray-500">
-                01
-              </span>
-
-              <h3 className="mt-3 text-lg font-semibold text-gray-900 dark:text-white">
-                Create an account
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                Sign up and create your personal finance account.
-              </p>
-            </div>
-
-            <div>
-              <span className="text-sm font-bold text-gray-400 dark:text-gray-500">
-                02
-              </span>
-
-              <h3 className="mt-3 text-lg font-semibold text-gray-900 dark:text-white">
-                Record transactions
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                Add your income and expenses as they happen.
-              </p>
-            </div>
-
-            <div>
-              <span className="text-sm font-bold text-gray-400 dark:text-gray-500">
-                03
-              </span>
-
-              <h3 className="mt-3 text-lg font-semibold text-gray-900 dark:text-white">
-                Understand your money
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                Use your dashboard and analytics to understand your financial
-                habits.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="px-4 pb-16 dark:bg-gray-950 sm:px-6 sm:pb-20">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-gray-900 px-5 py-12 text-center text-white dark:bg-gray-800 sm:px-8 sm:py-16 md:px-12">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-            Take control of your finances today.
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-gray-300 sm:text-base">
-            Start tracking your money and build a clearer picture of your
-            financial life.
-          </p>
-
-          <Link
-            to="/register"
-            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 sm:w-auto"
-          >
-            Create Your Account
-            <ArrowRight size={18} />
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-100 px-4 py-8 dark:border-gray-800 sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-sm text-gray-500 dark:text-gray-400 md:flex-row md:text-left">
-          <p>© 2026 FinanceTracker. All rights reserved.</p>
-
-          <p>Built to make money management simpler.</p>
-        </div>
-      </footer>
+      <main>
+        <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+          <div><p className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-400"><span className="h-1.5 w-1.5 rounded-full bg-blue-600" />Simple records. Better perspective.</p><h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-5xl xl:text-6xl">Your money.<br /><span className="text-blue-600 dark:text-blue-400">A clearer picture.</span></h1><p className="mt-5 max-w-lg text-base leading-7 text-gray-500 dark:text-gray-400">Record what comes in, understand what goes out, and make room for better financial habits. One simple place to keep track.</p><div className="mt-7 flex flex-col gap-3 sm:flex-row"><Link to={destination} className={primary}>{user ? "Open your dashboard" : "Create your account"}<ArrowRight size={17} aria-hidden="true" /></Link><a href="#features" onClick={event => jumpTo(event,"features")} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-600 transition-colors hover:border-blue-200 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-blue-950/30">Explore the features</a></div><p className="mt-5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><Check size={15} className="text-emerald-600" aria-hidden="true" />Start with a single transaction. Build from there.</p></div>
+          <div className="min-w-0 rounded-3xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-950/20 sm:p-6"><div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"><div className="flex items-center justify-between gap-3 border-b border-gray-100 p-5 dark:border-gray-800"><p className="text-sm font-semibold">Your overview</p><span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">Sample data</span></div><div className="space-y-4 p-5"><div className="rounded-2xl bg-blue-600 p-5 text-white"><span className="flex items-center gap-2 text-xs text-blue-100"><Wallet size={15} />Total balance</span><p className="mt-3 break-all text-3xl font-bold tabular-nums">₦125,000</p><p className="mt-2 text-xs text-blue-100">Income minus expenses</p></div><div className="grid grid-cols-2 gap-3">{[{label:"Income",value:"₦250,000",icon:ArrowDownLeft,tone:"text-emerald-600"},{label:"Expenses",value:"₦125,000",icon:ArrowUpRight,tone:"text-rose-500"}].map(item => <div key={item.label} className="min-w-0 rounded-xl border border-gray-100 p-3 dark:border-gray-800"><p className="flex items-center gap-1.5 text-xs text-gray-500"><item.icon size={14} className={item.tone} />{item.label}</p><p className="mt-2 break-all text-sm font-semibold tabular-nums">{item.value}</p></div>)}</div><div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50"><p className="mb-4 text-xs font-medium text-gray-500 dark:text-gray-400">Income & expenses · illustrative preview</p><div aria-hidden="true" className="flex h-24 items-end justify-between gap-3">{[[55,35],[75,45],[60,50],[95,55],[85,42],[100,50]].map(([income,expense],i) => <div key={i} className="flex h-full flex-1 items-end justify-center gap-1"><div style={{height:income+"%"}} className="w-full max-w-4 rounded-t bg-emerald-500" /><div style={{height:expense+"%"}} className="w-full max-w-4 rounded-t bg-rose-400" /></div>)}</div></div></div></div></div>
+        </section>
+        <section id="features" className="scroll-mt-6 border-y border-gray-200 bg-white px-4 py-14 dark:border-gray-800 dark:bg-gray-900/40 sm:px-6 sm:py-20 lg:px-8"><div className="mx-auto max-w-7xl"><p className="text-xs font-semibold uppercase tracking-widest text-blue-700 dark:text-blue-400">Built for everyday clarity</p><h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Less guesswork. More understanding.</h2><div className="mt-8 grid gap-4 md:grid-cols-3">{[{icon:ReceiptText,title:"Keep your records together",description:"Add, edit, and organise income and expenses. Find a record with search and filters."},{icon:BarChart3,title:"See the bigger picture",description:"Compare monthly income and expenses, explore your net balance, and review your summaries."},{icon:Wallet,title:"Make it your own",description:"Choose your display currency and theme, manage your account, and export your records as CSV."}].map(feature => <article key={feature.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-6 transition-colors hover:border-blue-200 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-800"><span className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"><feature.icon size={21} aria-hidden="true" /></span><h3 className="mt-5 font-semibold">{feature.title}</h3><p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{feature.description}</p></article>)}</div></div></section>
+        <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-6 px-4 py-14 sm:px-6 sm:py-20 lg:px-8"><p className="text-xs font-semibold uppercase tracking-widest text-blue-700 dark:text-blue-400">Start simple</p><h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Three small steps to better habits.</h2><ol className="mt-8 grid gap-6 md:grid-cols-3">{[{title:"Create your account",description:"Sign up, explore your dashboard, and verify your email before adding transactions."},{title:"Record your transactions",description:"Add income and expenses with a date, category, and amount."},{title:"Find your patterns",description:"Use your charts and monthly summaries to understand where your money goes."}].map((step,i) => <li key={step.title} className="flex gap-4"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-blue-100 bg-blue-50 text-sm font-bold text-blue-700 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-400">0{i+1}</span><div><h3 className="font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{step.description}</p></div></li>)}</ol></section>
+        <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8"><div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-blue-600 p-6 text-white sm:p-10 md:flex-row md:items-center"><div><h2 className="text-2xl font-bold tracking-tight sm:text-3xl">A little clarity goes a long way.</h2><p className="mt-3 max-w-lg text-sm leading-6 text-blue-100">Bring your income and expenses into focus, one record at a time.</p></div><Link to={destination} className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50 md:w-auto">{user ? "Go to dashboard" : "Get started"}<ArrowRight size={17} aria-hidden="true" /></Link></div></section>
+      </main>
+      <footer className="border-t border-gray-200 bg-white px-4 py-6 dark:border-gray-800 dark:bg-gray-900"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400"><p className="font-semibold text-gray-700 dark:text-gray-300">Personal Finance Tracker</p><p>Simple records. A clearer picture.</p></div></footer>
     </div>
   );
-};
-
-export default Homepage;
+}

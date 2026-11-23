@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import SettingsLayout, { SettingsNotice } from "../components/SettingsLayout";
+import { Eye, EyeOff, Lock, LoaderCircle } from "lucide-react";
 import { changePassword } from "../services/auth";
 
 const ChangePassword: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -17,6 +18,12 @@ const ChangePassword: React.FC = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (!error && !success) return;
+    const timer = window.setTimeout(() => { setError(""); setSuccess(""); }, error ? 7000 : 5000);
+    return () => window.clearTimeout(timer);
+  }, [error, success]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,208 +66,23 @@ const ChangePassword: React.FC = () => {
     }
   };
 
+  const fields = [
+    { id: "currentPassword", label: "Current password", value: currentPassword, set: setCurrentPassword, visible: showCurrentPassword, toggle: setShowCurrentPassword, autoComplete: "current-password" },
+    { id: "newPassword", label: "New password", value: newPassword, set: setNewPassword, visible: showNewPassword, toggle: setShowNewPassword, autoComplete: "new-password" },
+    { id: "confirmPassword", label: "Confirm new password", value: confirmPassword, set: setConfirmPassword, visible: showConfirmPassword, toggle: setShowConfirmPassword, autoComplete: "new-password" },
+  ];
   return (
-    <div className="min-h-full w-full px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-      <div className="mx-auto w-full max-w-4xl">
-        {/* Back */}
-        <button
-          type="button"
-          onClick={() => navigate("/settings/security")}
-          className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-lg px-2 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-        >
-          <ArrowLeft size={18} />
-          <span>Back to Security</span>
-        </button>
-
-        {/* Page heading */}
-        {/* Page heading */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex items-start gap-3 sm:gap-4">
-            {/* Icon */}
-
-            {/* Heading content */}
-            <div className="min-w-0 flex-1 lg:text-center">
-              <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl dark:text-white">
-                Change password
-              </h1>
-
-              <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
-                Update your password to help keep your account secure.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Main card */}
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          {/* Card header */}
-          {/* Card header */}
-          <div className="border-b border-gray-200 px-4 py-5 sm:px-6 sm:py-6 dark:border-gray-700">
-            <div className="flex items-start gap-3 sm:gap-4">
-              {/* Icon */}
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
-                <Lock size={18} className="text-gray-600 dark:text-gray-300" />
-              </div>
-
-              {/* Heading content */}
-              <div className="min-w-0 flex-1 lg:text-center">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Password details
-                </h2>
-
-                <p className="mt-0.5 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                  Enter your current password and choose a new one.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <div className="px-4 py-5 sm:px-6 sm:py-7">
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
-                {/* Current password */}
-                <div className="relative lg:col-span-2">
-                  <input
-                    id="currentPassword"
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter your current password"
-                    autoComplete="current-password"
-                    disabled={isLoading}
-                    className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-gray-400 dark:focus:ring-gray-600"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword((prev) => !prev)}
-                    disabled={isLoading}
-                    className="absolute right-0 top-0 flex h-full w-11 items-center justify-center text-gray-400 transition hover:text-gray-600 disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-200"
-                    aria-label={
-                      showCurrentPassword
-                        ? "Hide current password"
-                        : "Show current password"
-                    }
-                  >
-                    {showCurrentPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
-                  </button>
-                </div>
-
-                {/* New password */}
-                <div className="relative">
-                  <input
-                    id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    autoComplete="new-password"
-                    disabled={isLoading}
-                    className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-gray-400 dark:focus:ring-gray-600"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword((prev) => !prev)}
-                    disabled={isLoading}
-                    className="absolute right-0 top-0 flex h-full w-11 items-center justify-center text-gray-400 transition hover:text-gray-600 disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-200"
-                    aria-label={
-                      showNewPassword
-                        ? "Hide new password"
-                        : "Show new password"
-                    }
-                  >
-                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-
-                {/* Confirm password */}
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    autoComplete="new-password"
-                    disabled={isLoading}
-                    className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-gray-400 dark:focus:ring-gray-600"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    disabled={isLoading}
-                    className="absolute right-0 top-0 flex h-full w-11 items-center justify-center text-gray-400 transition hover:text-gray-600 disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-200"
-                    aria-label={
-                      showConfirmPassword
-                        ? "Hide confirm password"
-                        : "Show confirm password"
-                    }
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Password requirements */}
-              <div className="mt-6 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-700/50">
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Password requirements
-                </p>
-
-                <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                  Use at least 8 characters. Choose a password that is difficult
-                  for others to guess.
-                </p>
-              </div>
-
-              {/* Messages */}
-              {error && (
-                <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="mt-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
-                  {success}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="flex flex-col-reverse gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6 dark:border-gray-700">
-              <button
-                type="button"
-                onClick={() => navigate("/settings/security")}
-                disabled={isLoading}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 active:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 active:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-              >
-                {isLoading ? "Changing password..." : "Change password"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+    <SettingsLayout title="A fresh password." description="Use a password you haven’t used elsewhere to help protect your account." icon={Lock} back="/settings/security" backLabel="Back to security">
+      <form onSubmit={handleSubmit} className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <fieldset disabled={isLoading} className="space-y-5 p-5 sm:p-6">
+          {fields.map(field => <div key={field.id}><label htmlFor={field.id} className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200">{field.label}</label><div className="relative"><input id={field.id} type={field.visible ? "text" : "password"} autoComplete={field.autoComplete} value={field.value} onChange={event => field.set(event.target.value)} placeholder={field.label} className="min-h-12 w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pr-14 pl-4 text-base text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900" /><button type="button" onClick={() => field.toggle(value => !value)} aria-label={(field.visible ? "Hide " : "Show ") + field.label.toLowerCase()} aria-pressed={field.visible} className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">{field.visible ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>)}
+          <p className="rounded-xl bg-blue-50 p-4 text-xs leading-6 text-blue-800 dark:bg-blue-950/30 dark:text-blue-300">Use at least 8 characters. A longer, memorable passphrase is a good choice.</p>
+          <SettingsNotice message={error} error />
+          <SettingsNotice message={success} />
+        </fieldset>
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-100 p-5 dark:border-gray-800 sm:flex-row sm:justify-end sm:p-6"><Link to="/settings/security" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">Back to security</Link><button type="submit" disabled={isLoading} className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">{isLoading && <LoaderCircle size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}{isLoading ? "Updating password…" : "Update password"}</button></div>
+      </form>
+    </SettingsLayout>
   );
 };
 

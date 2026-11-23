@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import AuthCard from "../components/AuthCard";
+import { SettingsNotice as Notice } from "../components/SettingsLayout";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { ArrowRight, LoaderCircle, Mail, MailCheck } from "lucide-react";
 import axios from "axios";
 
 import { useForm } from "react-hook-form";
@@ -25,6 +27,12 @@ const ForgotPassword: React.FC = () => {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
+  useEffect(() => {
+    if (!errorMessage) return;
+    const timer = window.setTimeout(() => setErrorMessage(""), 7000);
+    return () => window.clearTimeout(timer);
+  }, [errorMessage]);
+
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setErrorMessage("");
 
@@ -44,109 +52,11 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  if (status === "success") {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl dark:bg-gray-900">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-            <Mail size={24} />
-          </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Check your email
-          </h1>
-
-          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            We've sent a password reset link to:
-          </p>
-
-          <p className="mt-1 break-all text-sm font-semibold text-gray-900 dark:text-white">
-            {registeredEmail}
-          </p>
-
-          <p className="mt-4 text-sm leading-6 text-gray-500 dark:text-gray-400">
-            Please check your inbox and click the link to create a new password.
-            The link will expire in 1 hour.
-          </p>
-
-          <Link
-            to="/login"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            Back to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+  const complete = status === "success";
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-900">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-            <Mail size={24} />
-          </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Forgot your password?
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Enter your email and we'll send you a password reset link.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Email
-            </label>
-
-            <input
-              {...register("email")}
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            />
-
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {errorMessage && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
-              {errorMessage}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting ? "Sending reset link..." : "Send reset link"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Remember your password?{" "}
-          <Link
-            to="/login"
-            className="font-semibold text-gray-900 hover:underline dark:text-white"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
+    <AuthCard title={complete ? "Check your email." : "Let’s get you back in."} description={complete ? "If an account matches this email, we’ll send a secure password-reset link." : "Forgot your password? Enter your account email and we’ll help you choose a new one."} icon={complete ? MailCheck : Mail}>
+      {complete ? <div className="space-y-5"><div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"><p className="text-xs text-gray-500 dark:text-gray-400">Requested for</p><p className="mt-2 break-all text-sm font-semibold text-gray-900 dark:text-white">{registeredEmail}</p></div><p className="text-sm leading-6 text-gray-500 dark:text-gray-400">Use the link in your inbox to reset your password. It expires in 1 hour. Check your spam or junk folder if it hasn’t arrived.</p><Link to="/login" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Back to sign in<ArrowRight size={17} aria-hidden="true" /></Link><button type="button" onClick={() => setStatus("form")} className="min-h-10 w-full cursor-pointer text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">Use a different email</button></div> : <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" aria-busy={isSubmitting}><div><label htmlFor="recovery-email" className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200">Account email</label><div className="relative"><Mail size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input {...register("email")} id="recovery-email" type="email" autoComplete="email" placeholder="you@example.com" disabled={isSubmitting} aria-invalid={!!errors.email} aria-describedby={errors.email ? "recovery-email-error" : undefined} className="min-h-12 w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pr-4 pl-11 text-base text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900" /></div>{errors.email && <p id="recovery-email-error" className="mt-2 text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>}</div><Notice message={errorMessage} error /><button type="submit" disabled={isSubmitting} className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">{isSubmitting ? <LoaderCircle size={17} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <ArrowRight size={17} aria-hidden="true" />}{isSubmitting ? "Sending your link…" : "Send reset link"}</button><p className="text-xs leading-6 text-gray-500 dark:text-gray-400">We’ll send instructions if this email belongs to an account.</p></form>}
+    </AuthCard>
   );
 };
 

@@ -7,6 +7,7 @@ interface PaginationProps {
   total: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  disabled?: boolean;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
@@ -15,6 +16,7 @@ const Pagination: React.FC<PaginationProps> = ({
   total,
   totalPages,
   onPageChange,
+  disabled = false,
 }) => {
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -68,132 +70,20 @@ const Pagination: React.FC<PaginationProps> = ({
 
   const pages = getPageNumbers();
 
-  if (totalPages <= 1) return null;
-
+  if (total === 0) return null;
   const start = (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
-
+  const button = "inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-blue-950/30";
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      {/* Mobile */}
-      <div className="flex flex-col gap-4 md:hidden">
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          Showing{" "}
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {start}
-          </span>
-          –
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {end}
-          </span>{" "}
-          of{" "}
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {total}
-          </span>{" "}
-          transactions
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => onPageChange(page - 1)}
-            disabled={page === 1}
-            aria-label="Go to previous page"
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            <ChevronLeft size={18} />
-            Previous
-          </button>
-
-          <div className="flex h-10 min-w-10 items-center justify-center rounded-xl bg-gray-900 px-3 text-sm font-semibold text-white dark:bg-gray-700">
-            {page}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onPageChange(page + 1)}
-            disabled={page === totalPages}
-            aria-label="Go to next page"
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            Next
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Tablet / Desktop */}
-      <div className="hidden items-center justify-between gap-4 md:flex">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Showing{" "}
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {start}
-          </span>
-          –
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {end}
-          </span>{" "}
-          of{" "}
-          <span className="font-medium text-gray-700 dark:text-gray-200">
-            {total}
-          </span>{" "}
-          transactions
-        </p>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onPageChange(page - 1)}
-            disabled={page === 1}
-            aria-label="Go to previous page"
-            className="flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            <ChevronLeft size={18} />
-            Previous
-          </button>
-
-          {pages.map((item, index) => {
-            if (item === "...") {
-              return (
-                <span
-                  key={`ellipsis-${index}`}
-                  className="px-2 text-gray-500 dark:text-gray-400"
-                >
-                  ...
-                </span>
-              );
-            }
-
-            return (
-              <button
-                key={item}
-                type="button"
-                onClick={() => onPageChange(item as number)}
-                aria-current={page === item ? "page" : undefined}
-                className={`h-10 w-10 rounded-xl text-sm font-medium transition ${
-                  page === item
-                    ? "bg-gray-900 text-white dark:bg-gray-700"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-100 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-                }`}
-              >
-                {item}
-              </button>
-            );
-          })}
-
-          <button
-            type="button"
-            onClick={() => onPageChange(page + 1)}
-            disabled={page === totalPages}
-            aria-label="Go to next page"
-            className="flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            Next
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-    </div>
+    <nav aria-label="Transaction pagination" className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 xl:flex-row">
+      <p className="text-center text-xs text-gray-500 dark:text-gray-400">Showing <span className="font-semibold text-gray-700 dark:text-gray-200">{start}–{end}</span> of <span className="font-semibold text-gray-700 dark:text-gray-200">{total}</span> transactions</p>
+      {totalPages > 1 && <div className="flex max-w-full items-center justify-center gap-2">
+        <button type="button" onClick={() => onPageChange(page - 1)} disabled={disabled || page <= 1} aria-label="Go to previous page" className={button}><ChevronLeft size={16} aria-hidden="true" /><span className="hidden sm:inline">Previous</span></button>
+        <span className="px-1 text-xs font-medium text-gray-600 dark:text-gray-300 md:hidden">Page {page} of {totalPages}</span>
+        <div className="hidden items-center gap-1 md:flex">{pages.map((item,index) => typeof item === "number" ? <button key={item} type="button" disabled={disabled} onClick={() => onPageChange(item)} aria-label={"Go to page " + item} aria-current={page === item ? "page" : undefined} className={"grid h-10 min-w-10 cursor-pointer place-items-center rounded-xl px-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-50 " + (page === item ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-300 dark:hover:bg-blue-950/30")}>{item}</button> : <span key={"ellipsis-"+index} aria-hidden="true" className="px-1 text-gray-400">…</span>)}</div>
+        <button type="button" onClick={() => onPageChange(page + 1)} disabled={disabled || page >= totalPages} aria-label="Go to next page" className={button}><span className="hidden sm:inline">Next</span><ChevronRight size={16} aria-hidden="true" /></button>
+      </div>}
+    </nav>
   );
 };
 
