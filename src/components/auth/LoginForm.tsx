@@ -118,7 +118,6 @@ const LoginForm: React.FC = () => {
             </fieldset>
           </form>
           <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-gray-500 dark:text-gray-400"><ShieldCheck size={16} className="mt-0.5 shrink-0" aria-hidden="true" />You can sign in now and verify your email before adding transactions.</p>
-          <Link to="/verify-email" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">Need a verification link?</Link>
 
           <div className="mt-5 border-t border-gray-200 pt-5 dark:border-gray-800">
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">New to Personal Finance Tracker?</p>

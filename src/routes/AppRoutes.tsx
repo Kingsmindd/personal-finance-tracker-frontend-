@@ -62,6 +62,7 @@ const AppRoutes = () => {
           />
 
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/settings/verification" element={<ProtectedRoute><VerifyEmail /></ProtectedRoute>} />
 
           <Route path="/register" element={<Register />} />
 
