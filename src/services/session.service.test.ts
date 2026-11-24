@@ -140,6 +140,9 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
     "header." + Buffer.from(JSON.stringify({ exp: expiresAt, id })).toString("base64url") + ".signature";
   const freshToken = jwtToken(Math.floor(Date.now() / 1000) + 900);
   assert.equal(session.isAccessTokenFresh(freshToken), true);
+  const renewalWindowToken = jwtToken(Math.floor(Date.now() / 1000) + 10);
+  assert.equal(session.isAccessTokenValid(renewalWindowToken), true);
+  assert.equal(session.isAccessTokenFresh(renewalWindowToken), false);
   assert.equal(session.isAccessTokenFresh(jwtToken(Math.floor(Date.now() / 1000) - 1)), false);
   assert.equal(session.isAccessTokenFresh("malformed"), false);
   assert.equal(session.isAccessTokenFresh("header." + Buffer.from("{}").toString("base64url") + ".signature"), false);
@@ -297,9 +300,12 @@ test("forms and sessions handle validation, concurrent refresh, account changes 
     return renderToStaticMarkup(React.createElement(MemoryRouter, null, React.createElement(Auth.Provider, { value }, child)));
   }
   const checking = renderAuth(true, null, false, true);
-  assert.ok(checking.includes("Checking session"));
-  assert.ok(!checking.includes('href="/dashboard"'));
-  assert.ok(!checking.includes("Get started"));
+  assert.ok(!checking.includes("Checking session"));
+  assert.ok(checking.includes('href="/dashboard"'));
+  assert.ok(checking.includes("Get started"));
+  assert.ok(checking.includes("Open Finance Tracker"));
+  assert.ok(!checking.includes("Retry connection"));
+  assert.ok(!checking.includes("disabled"));
   assert.ok(!renderAuth(true, null, false, false).includes("Private account data"));
   const unavailable = renderAuth(false, "Connection unavailable", false, false);
   assert.ok(unavailable.includes("Try again"));

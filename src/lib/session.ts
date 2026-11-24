@@ -18,6 +18,10 @@ export function getTokenExpiry(token: string): number | null {
     return Number.isSafeInteger(payload.exp) && payload.exp > 0 ? payload.exp * 1000 : null;
   } catch { return null; }
 }
+export function isAccessTokenValid(token: string, now = Date.now()): boolean {
+  const expiresAt = getTokenExpiry(token);
+  return expiresAt !== null && expiresAt > now;
+}
 export function isAccessTokenFresh(token: string, now = Date.now()): boolean {
   const expiresAt = getTokenExpiry(token);
   return expiresAt !== null && expiresAt > now + 15000;

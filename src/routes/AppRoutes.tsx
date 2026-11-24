@@ -1,14 +1,15 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Analystics from "../pages/Analystics";
-import Dashboard from "../pages/Dashboard";
+const Analystics = lazy(() => import("../pages/Analystics"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
 import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import Register from "../pages/Register";
 import Settings from "../pages/Settings";
-import Transactions from "../pages/Transactions";
+const Transactions = lazy(() => import("../pages/Transactions"));
 import Profile from "../pages/Profile";
 import Homepage from "../pages/Homepage";
-import ProtectedRoute from "../components/Protectedroute";
+import ProtectedRoute, { AccountPlaceholder } from "../components/Protectedroute";
 import Security from "../pages/security";
 import ChangePassword from "../pages/ChangePassword";
 import LogoutAllDevices from "../pages/LogoutAllDevices";
@@ -22,6 +23,7 @@ const AppRoutes = () => {
   return (
     <div>
       <BrowserRouter>
+        <Suspense fallback={<AccountPlaceholder />}>
         <Routes>
           <Route
             path="/analytics"
@@ -126,6 +128,7 @@ const AppRoutes = () => {
           {/* Keep NotFound LAST */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   subscribeSession,
   getTokenExpiry,
   isAccessTokenFresh,
+  isAccessTokenValid,
   type SessionUser,
 } from "../lib/session";
 interface AuthContextType {
@@ -28,9 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [checkVersion, setCheckVersion] = useState(0);
   const [failure, setFailure] = useState<{ token: string; message: string } | null>(null);
   const token = session?.token;
-  const fresh = Boolean(token && isAccessTokenFresh(token));
-  const sessionError = token && failure?.token === token ? failure.message : null;
-  const loading = Boolean(session && !fresh && !sessionError);
+  const validAccess = Boolean(token && isAccessTokenValid(token));
+  const sessionError = !validAccess && token && failure?.token === token ? failure.message : null;
+  const loading = Boolean(session && !validAccess && !sessionError);
   const retrySession = () => { setFailure(null); setCheckVersion(value => value + 1); };
 
   useEffect(() => {
@@ -50,13 +51,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
     }
     let active = true;
+    const expiration = getTokenExpiry(token);
+    const expirationTimer = expiration && expiration > Date.now()
+      ? window.setTimeout(() => setCheckVersion(value => value + 1), expiration - Date.now() + 1)
+      : null;
     const version = getSessionGeneration();
     void refreshSession(version).catch(() => {
       if (active && version === getSessionGeneration() && getSession()?.token === token) {
         setFailure({ token, message: "We couldn’t reconnect to your account. Please try again." });
       }
     });
-    return () => { active = false; };
+    return () => { active = false; if (expirationTimer !== null) window.clearTimeout(expirationTimer); };
   }, [token, checkVersion]);
 
   const login = (token: string, user: SessionUser) =>
@@ -79,9 +84,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        user: fresh ? session?.user ?? null : null,
+        user: validAccess ? session?.user ?? null : null,
         token: session?.token ?? null,
-        isAuthenticated: fresh,
+        isAuthenticated: validAccess,
         loading,
         sessionError,
         retrySession,
